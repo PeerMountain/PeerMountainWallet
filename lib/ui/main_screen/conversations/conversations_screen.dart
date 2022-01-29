@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:kyc3/app/app.dart';
 import 'package:kyc3/models/hive_adapters/contact/kyc_contact.dart';
-import 'package:kyc3/ui/main_screen/widgets/item_coversation.dart';
-import 'package:kyc3/widgets/base_scaffold.dart';
+import 'package:kyc3/ui/main_screen/widgets/item_conversation.dart';
 import 'package:kyc3/widgets/widgets.dart';
 
 class ConversationsScreen extends StatefulWidget {
@@ -26,13 +25,13 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       titleStyle: CustomStyles.appbarTitle,
       backgroundColor: context.homeBackgroundColor,
       isLeading: false,
-      title: "Conversations",
+      title: Strings.conversations,
       applyShape: true,
       child: Builder(
         builder: (_) {
           final liveList = hiveStorage.liveConversationsList();
           return liveList == null
-              ? const NoDataFound(msg: "No conversations!")
+              ? const NoDataFound(msg: Strings.noConversations)
               : ValueListenableBuilder<Box<KycContact>>(
                   valueListenable: liveList,
                   builder: (context, box, _) {

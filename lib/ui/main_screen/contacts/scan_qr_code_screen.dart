@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:kyc3/app/app.dart';
 import 'package:kyc3/utils/validations.dart';
-import 'package:kyc3/widgets/base_scaffold.dart';
 import 'package:kyc3/widgets/qr_code/qr_code_overlay.dart' as q;
 import 'package:kyc3/widgets/widgets.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -43,7 +42,7 @@ class _ScanQrCodeScreenState extends State<ScanQrCodeScreen> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      title: "Scan QR Code",
+      title: Strings.scanQRCode,
       titleStyle: CustomStyles.appbarTitle,
       backgroundColor: context.homeBackgroundColor,
       applyShape: true,
@@ -88,7 +87,7 @@ class _ScanQrCodeScreenState extends State<ScanQrCodeScreen> {
     return Column(
       children: [
         Texts(
-          "Wallet Address",
+          Strings.walletAddress,
           style: Theme.of(context).textTheme.bodyText1!.copyWith(fontSize: 17.0),
         ),
         h8,
@@ -148,21 +147,6 @@ class _TitleWidgets extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   children: [
-        //     Image.asset(
-        //       Assets.imagesCamera1,
-        //       width: 30,
-        //     ),
-        //     w10,
-        //     const Texts(
-        //       Strings.scanQrCode,
-        //       fontSize: 17.0,
-        //       fontWeight: FontWeight.bold,
-        //     ),
-        //   ],
-        // ),
         Texts(
           Strings.scanQrCodeMsg,
           fontSize: 13.5,

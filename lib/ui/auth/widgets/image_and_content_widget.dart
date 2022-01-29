@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kyc3/app/app.dart';
-import 'package:kyc3/app/theme/palette.dart';
 import 'package:kyc3/utils/constants.dart';
 import 'package:kyc3/widgets/widgets.dart';
 

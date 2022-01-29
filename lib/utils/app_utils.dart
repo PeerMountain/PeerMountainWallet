@@ -562,28 +562,6 @@ class Utils {
     }
   }
 
-  static List<WalletData> getRandomPersons(int length) {
-    final faker = Faker();
-    var list = <WalletData>[];
-
-    for (var i = 0; i < length; ++i) {
-      final name = faker.person.firstName() + " " + faker.person.lastName();
-      final firstLetter = name.split(" ")[0].substring(0, 1);
-      final lastLetter = name.split(" ")[1].substring(0, 1);
-      final o = WalletData(
-        id: faker.guid,
-        title: name,
-        address: "0x" + randomString(40),
-        image: firstLetter + lastLetter,
-        ratings: "4",
-        group: firstLetter,
-      );
-      list.add(o);
-    }
-
-    return list;
-  }
-
   static List<ChatModel> getRandomMessages(int length) {
     final now = DateTime.now();
     var list = <ChatModel>[];

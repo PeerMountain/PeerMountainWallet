@@ -5,14 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kyc3/app/app.dart';
 import 'package:kyc3/generated/com/kyc3/message.pb.dart';
-import 'package:kyc3/services/xmpp/anonymous/anonymous_send_service.dart';
 import 'package:kyc3/services/xmpp/src/xmpp_core.dart';
 import 'package:kyc3/utils/app_events.dart';
 import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 import 'package:xmpp_stone/xmpp_stone.dart';
 
 import '../../services.dart';
-import '../src/xmpp_utils.dart';
 
 export 'anonymous_receive_service.dart';
 export 'anonymous_send_service.dart';

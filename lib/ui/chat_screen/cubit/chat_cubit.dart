@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:kyc3/app/app.dart';
 import 'package:kyc3/models/chat/chat_model.dart';
 import 'package:kyc3/models/hive_adapters/contact/kyc_contact.dart';
+import 'package:kyc3/models/kyc_base_message.dart';
 import 'package:kyc3/services/services.dart';
 import 'package:kyc3/services/xmpp/authenticated/normal_chat_service.dart';
 import 'package:kyc3/utils/export_utils.dart';
@@ -20,15 +21,7 @@ class ChatCubit extends Cubit<ChatState> {
   StreamSubscription<ChatEvent>? subscription;
   String? address;
 
-  void init({required String address}) {
-    final authUserJid = normalXmppService.getUserJID(address);
-    this.address = address;
-    chatService = NormalChatService(
-      userJID: authUserJid,
-      connection: NormalXmppService.connection!,
-      messageHandler: normalXmppService.messageHandler,
-    );
-
+  void initSubscription() async {
     subscription?.cancel();
     subscription = eventBus.on<ChatEvent>().listen((event) {
       final message = event.message;
@@ -45,19 +38,46 @@ class ChatCubit extends Cubit<ChatState> {
     });
   }
 
+  void initChatService({required String address}) {
+    assert(subscription != null, "Subscription for this should not be null.");
+    final authUserJid = normalXmppService.getUserJID(address);
+    this.address = address;
+    chatService = NormalChatService(
+      userJID: authUserJid,
+      connection: NormalXmppService.connection!,
+      messageHandler: normalXmppService.messageHandler,
+    );
+  }
+
   void sendMessage(String message) {
     assert(chatService != null && subscription != null);
     final now = DateTime.now();
+    final me = hiveStorage.getUser();
+
+    /// if user has not set profile redirect him/her to set-up profile first
+    /// otherwise continue with sending message
+    if (me == null || me.nickName?.trim() == "" || me.fullName?.trim() == "") {
+      navUtils.gotoUserProfileScreen(me);
+      return;
+    }
     final chatMessage = ChatModel(
       message: message,
       messageType: MessageType.text,
       createdOn: now.millisecondsSinceEpoch,
       updatedOn: now.millisecondsSinceEpoch,
       senderJid: cryptoAccount.address!.addXmppKycHost(),
+      senderNickname: me.nickName,
+      senderFullname: me.fullName,
     );
     emit(ChatState.success([...state.chats ?? [], chatMessage]));
     checkForConversationAdd();
-    chatService!.sendMessageToUser(message: chatMessage.encodeValues());
+
+    final baseMessage = KycBaseMessage(
+      type: MessageType.chat.value,
+      message: jsonEncode(chatMessage.toJson()),
+    );
+
+    chatService!.sendMessageToUser(message: jsonEncode(baseMessage));
   }
 
   void clear() {
@@ -69,26 +89,16 @@ class ChatCubit extends Cubit<ChatState> {
     final allConversations = hiveStorage.getAllConversations();
     KycContact? isAlreadyExist, foundContact;
 
-    try {
-      isAlreadyExist = allConversations?.firstWhere((element) => element.blockchainAddress == address);
-    } catch (e) {}
+    isAlreadyExist = allConversations?.firstWhereOrNull((element) => element.blockchainAddress == address);
 
     /// add new conversation
     if (isAlreadyExist == null) {
-      try {
-        final allContacts = hiveStorage.getAllContacts();
-        foundContact = allContacts?.firstWhere((element) => element.blockchainAddress == address);
-        if (foundContact != null) {
-          final contact = KycContact()
-            ..blockchainAddress = foundContact.blockchainAddress
-            ..jid = foundContact.blockchainAddress?.addXmppKycHost()
-            ..nickName = foundContact.nickName
-            ..fullName = foundContact.fullName
-            ..image = foundContact.image;
-          hiveStorage.addConversations(contact);
-        }
-      } catch (e) {
-        /// temp chat
+      final allContacts = hiveStorage.getAllContacts();
+      foundContact = allContacts?.firstWhere((element) => element.blockchainAddress == address);
+      if (foundContact != null) {
+        hiveStorage.addConversations(foundContact);
+      } else {
+        showLog("checkForConversationAdd something went wrong!");
       }
     } else {
       /// already exists do not add again

@@ -1,6 +1,3 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kyc3/app/app.dart';
@@ -8,6 +5,7 @@ import 'package:kyc3/models/models.dart';
 import 'package:kyc3/services/services.dart';
 import 'package:kyc3/utils/heavy_tasks.dart';
 import 'package:kyc3/widgets/widgets.dart';
+import 'package:web3dart/crypto.dart';
 
 import '../widgets/item_words.dart';
 
@@ -120,10 +118,11 @@ class _AlreadyHaveKeywordsScreenState extends State<AlreadyHaveKeywordsScreen> {
       focusNode: fcPrivateKey,
       controller: tcPrivateKey,
       label: Strings.enterPrivateKey,
-      actionKeyboard: TextInputAction.done,
+      textInputAction: TextInputAction.done,
       textInputType: TextInputType.visiblePassword,
       autoCorrect: false,
       enableSuggestions: false,
+      maxLines: 3,
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(30),
         borderSide: BorderSide(color: Theme.of(context).primaryColor),
@@ -146,7 +145,7 @@ class _AlreadyHaveKeywordsScreenState extends State<AlreadyHaveKeywordsScreen> {
             controller: controller,
             label: Strings.search,
             textInputType: TextInputType.name,
-            actionKeyboard: TextInputAction.done,
+            textInputAction: TextInputAction.done,
             onFieldSubmitted: (value) => addPhrase(
               value,
               focusNode: focusNode,
@@ -257,8 +256,7 @@ class _AlreadyHaveKeywordsScreenState extends State<AlreadyHaveKeywordsScreen> {
     if (kPhrase.isNotEmpty) {
       if (phraseList.length == 24) {
         showBotToastNotification(
-          "Maximum key phrase limit exceed that is 24 keywords. You can now click on submit button to "
-          "verify your keywords!",
+          Strings.maxKeyPhraseError,
           textColor: Colors.white,
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 5),
@@ -270,7 +268,7 @@ class _AlreadyHaveKeywordsScreenState extends State<AlreadyHaveKeywordsScreen> {
 
       if (isExist) {
         showBotToastNotification(
-          "Key phrase already exists.",
+          Strings.keyPhraseAlreadyExists,
           textColor: Colors.white,
           backgroundColor: Colors.red,
         );
@@ -287,14 +285,14 @@ class _AlreadyHaveKeywordsScreenState extends State<AlreadyHaveKeywordsScreen> {
   void submit() async {
     if (_importType == _ImportType.mnemonics) {
       if (phraseList.length != 24) {
-        showErrorSnackbar("Invalid mnemonic phrases provided!");
+        showErrorSnackbar(Strings.invalidMnemonics);
       } else {
         verifyAccount(mnemonics: phraseList.toMnemonics());
       }
     } else {
       final pk = tcPrivateKey.text.trim();
       if (pk.isEmptyORNull) {
-        showErrorSnackbar("Please enter your private key to continue!");
+        showErrorSnackbar(Strings.pleaseEnterPvKey);
         return;
       }
 
@@ -306,7 +304,7 @@ class _AlreadyHaveKeywordsScreenState extends State<AlreadyHaveKeywordsScreen> {
     CryptoAccount? account;
 
     if (pvKey != null) {
-      account = web3Service.getUserCryptoAccount(pvKey);
+      account = web3Service.getUserCryptoAccount(strip0x(pvKey.trim()));
     }
 
     if (mnemonics != null) {
@@ -316,15 +314,34 @@ class _AlreadyHaveKeywordsScreenState extends State<AlreadyHaveKeywordsScreen> {
     if (account != null) {
       /// On Success will goto main screen otherwise
       /// Error has been handled in below methods directly
-      final didSave = await safeStorage.savePrivateKey(account.privateKey!);
+      final didSave = await safeStorage.savePrivateKey(
+        account.privateKey!,
+        cancelText: Strings.usePin,
+        onUsePin: () {
+          showLog("onUsePin");
+          createPin(account!, isUsePin: true);
+        },
+        errorHwUnavailable: () {
+          showLog("errorHwUnavailable");
+          createPin(account!);
+        },
+        errorNoHardware: () {
+          showLog("errorNoHardware");
+          createPin(account!);
+        },
+        statusUnknown: () {
+          showLog("statusUnknown");
+          createPin(account!);
+        },
+        errorNoBiometricEnrolled: () async {
+          showLog("errorNoBiometricEnrolled");
+          createPin(account!);
+        },
+      );
 
       if (didSave == true) {
-        /// login user to server here
-        /// Assign imported account as user's current crypto account into app.
-        cryptoAccount = account;
-        showLoader();
-        anonymousReceiveService.isNewUser = true;
-        anonymousSendService.sendExchangeKeyRequest();
+        prefs.setAuthType(Keys.bio);
+        signUpUserOnServer(account);
       }
     } else {
       showErrorDialog(
@@ -332,6 +349,40 @@ class _AlreadyHaveKeywordsScreenState extends State<AlreadyHaveKeywordsScreen> {
         description: pvKey != null ? Strings.accountNotFoundPvKeyMSG : Strings.accountNotFoundMnemonicsMSG,
       );
     }
+  }
+
+  void createPin(CryptoAccount account, {bool isUsePin = false}) async {
+    if (!isUsePin) {
+      final result = await showErrorDialog(
+        title: Strings.authenticationFailed,
+        description: Strings.errorMsgAuthFailed,
+        okText: Strings.usePin,
+      );
+    }
+
+    /// create new pin here
+    final response = await navUtils.gotoCreateOrChangePinScreen();
+
+    if (response == true) {
+      prefs.setAuthType(Keys.pin);
+      signUpUserOnServer(account);
+    }
+  }
+
+  void signUpUserOnServer(CryptoAccount account) async {
+    /// Save in secure storage also because if user has bio metrics enrolled
+    /// while sign up and if user removes it later on we wont be able to
+    /// retrieve user's private key from bio storage instead we have to use
+    /// secure storage as a backup private key for user's account retrieval
+    /// when user restarts the application.
+    await secureStorage.savePrivateKey(account.privateKey!);
+
+    /// login user to server here
+    /// Assign imported account as user's current crypto account into app.
+    cryptoAccount = account;
+    showLoader();
+    anonymousReceiveService.isNewUser = true;
+    anonymousSendService.sendExchangeKeyRequest();
   }
 }
 
@@ -341,20 +392,20 @@ class _SelectImportTypeDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Select import type"),
+      title: const Text(Strings.selectImportType),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           h16,
           _getWidget(
-            title: "Using Private Key",
+            title: Strings.usingPvKey,
             onTap: () {
               Navigator.of(context).pop(_ImportType.privateKey);
             },
           ),
           h16,
           _getWidget(
-            title: "Using Mnemonic Phrases",
+            title: Strings.usingMnemonics,
             onTap: () {
               Navigator.of(context).pop(_ImportType.mnemonics);
             },

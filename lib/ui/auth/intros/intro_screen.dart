@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:kyc3/app/app.dart';
 import 'package:kyc3/ui/auth/widgets/image_and_content_widget.dart';
 import 'package:kyc3/utils/constants.dart';
-import 'package:kyc3/utils/navigation_utils.dart';
 import 'package:kyc3/widgets/widgets.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 

@@ -62,11 +62,12 @@ class _ChatTextFieldState extends State<ChatTextField> {
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _payAndRequestButton(),
-            if (!hasFocus) w8,
+            // _payAndRequestButton(),
+            // if (!hasFocus) w8,
             _dismissKeyboardButton(),
             if (hasFocus) w8,
             Expanded(
+              key: const ValueKey('__chat_text_field_expanded__'),
               child: AnimatedSize(
                 duration: const Duration(milliseconds: 50),
                 child: ValueListenableBuilder(
@@ -88,7 +89,8 @@ class _ChatTextFieldState extends State<ChatTextField> {
                       controller: tcMessage,
                       focusNode: fcMessage,
                       maxLines: 5,
-                      actionKeyboard: TextInputAction.newline,
+                      key: const ValueKey('__chat_text_field__'),
+                      textInputAction: TextInputAction.newline,
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(borderRadius),
                         borderSide: const BorderSide(color: Palette.accentColor),
@@ -119,13 +121,12 @@ class _ChatTextFieldState extends State<ChatTextField> {
       height: 40,
       child: GestureDetector(
         onTap: () {
-          fcMessage.unfocus();
+          hideKeyboard(context);
         },
         child: CircleAvatar(
           backgroundColor: Theme.of(context).accentColor,
           child: const Icon(
-            Icons.arrow_forward_ios_sharp,
-            size: 18.0,
+            Icons.keyboard_arrow_down_sharp,
             color: Colors.white,
           ),
         ),

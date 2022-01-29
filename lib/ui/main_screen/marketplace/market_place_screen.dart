@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kyc3/app/app.dart';
@@ -6,7 +5,6 @@ import 'package:kyc3/generated/com/kyc3/oracle/nft/signed-nft.pb.dart';
 import 'package:kyc3/utils/app_events.dart';
 import 'package:kyc3/widgets/cached_image.dart';
 import 'package:kyc3/widgets/widgets.dart';
-import 'package:provider/provider.dart';
 
 import 'market_cubit.dart';
 
@@ -33,7 +31,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
       appBarColor: Palette.appBarColor,
       backgroundColor: context.homeBackgroundColor,
       isLeading: false,
-      title: "Marketplace",
+      title: Strings.marketplace,
       applyShape: false,
       extendBody: true,
       extendBodyBehindAppBar: true,
@@ -105,7 +103,7 @@ class _NftsListState extends State<NftsList> {
                   final nftList = state.items;
 
                   if (nftList.isEmpty) {
-                    return const NoDataFound(msg: "No nfts to show!");
+                    return const NoDataFound(msg: Strings.noPurchasedNft);
                   }
 
                   return CustomScrollView(
@@ -116,7 +114,7 @@ class _NftsListState extends State<NftsList> {
                             Padding(
                               padding: const EdgeInsets.all(16.0).copyWith(top: 30.0, bottom: 20.0),
                               child: Texts(
-                                "NFTs",
+                                Strings.nfts,
                                 style: context.textTheme.headline3,
                               ),
                             ),
@@ -167,7 +165,7 @@ class _ItemNft extends StatelessWidget {
       child: InkWell(
         onTap: () {
           navigationService.navigateTo(Routes.nftDetailsScreen.value,
-              arguments: NftDetailsScreenArguments(nft: nft));
+              arguments: NftDetailsScreenArguments(signedNft: item));
         },
         borderRadius: CustomStyles.b25,
         child: Column(
@@ -192,7 +190,7 @@ class _ItemNft extends StatelessWidget {
             RichText(
               text: TextSpan(children: <InlineSpan>[
                 TextSpan(
-                  text: "Price : ",
+                  text: "${Strings.price} : ",
                   style: context.textTheme.bodyText1?.copyWith(
                     fontSize: 15.0,
                     fontWeight: FontWeight.normal,

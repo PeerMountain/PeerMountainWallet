@@ -2,6 +2,8 @@ export 'auth/initial_option/initial_select_screen.dart';
 export 'auth/intros/intro_screen.dart';
 export 'auth/keywords/generate/generate_keywords_screen.dart';
 export 'auth/keywords/import/already_have_keywords_screen.dart';
+export 'auth/keywords/pin_screens/create_change_pin_screen.dart';
+export 'auth/keywords/pin_screens/validate_pin_screen.dart';
 export 'auth/keywords/verify/verify_keywords_screen.dart';
 export 'auth/no_screenshots/no_screen_shots_screen.dart';
 export 'chat_screen/chat_screen.dart';

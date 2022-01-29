@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:kyc3/cubits/balance/balance_cubit.dart';
 import 'package:kyc3/generated/google/protobuf/any.pb.dart';
 import 'package:kyc3/ui/main_screen/marketplace/market_cubit.dart';
+import 'package:xmpp_stone/xmpp_stone.dart';
 
 enum CubitState { initial, loading, success, failure }
 
@@ -77,15 +78,16 @@ class BalanceCubitResponses<T> extends Equatable {
   /// For all of the response received in [BalanceCubit] will use
   /// generic response type and will cast actual response when received in bloc.
 
+  final T? request;
   final T? response;
 
-  const BalanceCubitResponses({this.response});
+  const BalanceCubitResponses({this.request, this.response});
 
   @override
   bool? get stringify => true;
 
   @override
-  List<Object?> get props => [response];
+  List<Object?> get props => [request, response];
 }
 
 class ChatEvent<T> extends Equatable {
@@ -99,4 +101,16 @@ class ChatEvent<T> extends Equatable {
 
   @override
   List<Object?> get props => [from, message];
+}
+
+class ServerConnectionEvent<T> extends Equatable {
+  final XmppConnectionState? connectionState;
+
+  const ServerConnectionEvent({this.connectionState});
+
+  @override
+  bool? get stringify => true;
+
+  @override
+  List<Object?> get props => [connectionState];
 }

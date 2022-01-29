@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:kyc3/app/app.dart';
 import 'package:kyc3/ui/auth/widgets/image_and_content_widget.dart';
 import 'package:kyc3/utils/constants.dart';
-import 'package:kyc3/widgets/base_scaffold.dart';
 import 'package:kyc3/widgets/widgets.dart';
 
 class NoScreenShotsScreen extends StatefulWidget {
@@ -14,11 +13,6 @@ class NoScreenShotsScreen extends StatefulWidget {
 
 class _NoScreenShotsScreenState extends State<NoScreenShotsScreen> {
   final _contentController = PageController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {

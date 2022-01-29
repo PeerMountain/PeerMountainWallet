@@ -10,6 +10,7 @@ import 'package:kyc3/ui/chat_screen/cubit/chat_cubit.dart';
 import 'package:kyc3/ui/invoices/invoice_cubit.dart';
 
 import 'kyc3.dart';
+import 'services/local_notification_service.dart';
 import 'ui/main_screen/contacts/contacts_cubit.dart';
 import 'ui/main_screen/gallery/gallery_cubit.dart';
 import 'ui/main_screen/marketplace/market_cubit.dart';
@@ -33,6 +34,9 @@ Future<void> main() async {
   /// initialize hive local database storage
   await Hive.initFlutter();
   hiveStorage.initHiveStorage();
+
+  /// initialize flutter local notifications
+  localNotificationService.init();
 
   hideKeyboard();
   runApp(

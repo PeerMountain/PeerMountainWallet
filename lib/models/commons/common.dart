@@ -1,4 +1,6 @@
-class CommonModel {
+import 'package:equatable/equatable.dart';
+
+class CommonModel with EquatableMixin {
   dynamic id;
   int? index;
   String? name;
@@ -21,34 +23,7 @@ class CommonModel {
   String toString() {
     return "index: $index, name: $name";
   }
-}
-
-class WalletData {
-  dynamic id;
-
-  String? title;
-  String? shortName;
-  String? image;
-  dynamic priceInBTC;
-  String? marketStatus;
-  String? address;
-  String? group;
-  String? ratings;
-
-  WalletData({
-    this.id,
-    this.title,
-    this.shortName,
-    this.image,
-    this.priceInBTC,
-    this.marketStatus,
-    this.address,
-    this.group,
-    this.ratings,
-  });
 
   @override
-  String toString() {
-    return "index: $id, name: $title";
-  }
+  List<Object?> get props => [id, index, name, mobile, image, isSelected, removedIndex];
 }

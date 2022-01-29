@@ -1,5 +1,4 @@
 import 'package:colours/colours.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kyc3/widgets/text_widget.dart';
 

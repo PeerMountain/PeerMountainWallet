@@ -9,6 +9,7 @@ import 'package:kyc3/generated/com/kyc3/oracle/user/challenge-signed.pb.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/deposit.pbserver.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/erc20.pb.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/initiate-nft-purchase.pb.dart';
+import 'package:kyc3/generated/com/kyc3/oracle/user/nft-transfer.pb.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/search-nft.pb.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/user-token.pb.dart';
 import 'package:kyc3/generated/google/protobuf/any.pb.dart';
@@ -128,6 +129,14 @@ class NormalSendService {
   /// its response has been handled in *[GalleryCubit].
   void sendUserTokenRequest() async {
     final packed = Any.pack(UserTokenRequest());
+    final base64Request = await XmppUtils.signEncryptAndSendMessageToNormal(packed);
+    sendMessage(base64Request);
+  }
+
+  /// This will send *[NftTransferRequest] to kyc server and
+  /// its response has been handled in *[MarketCubit].
+  void sendNftTransferRequest({required String message, required String signature}) async {
+    final packed = Any.pack(NftTransferRequest(message: message, signature: signature));
     final base64Request = await XmppUtils.signEncryptAndSendMessageToNormal(packed);
     sendMessage(base64Request);
   }

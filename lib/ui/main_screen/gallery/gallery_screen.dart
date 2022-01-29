@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kyc3/app/app.dart';
@@ -5,7 +7,9 @@ import 'package:kyc3/ui/main_screen/gallery/filter/list_type_cubit.dart';
 import 'package:kyc3/ui/main_screen/gallery/gallery_cubit.dart';
 import 'package:kyc3/ui/main_screen/marketplace/market_cubit.dart';
 import 'package:kyc3/ui/main_screen/widgets/item_gallery_small.dart';
+import 'package:kyc3/utils/export_utils.dart';
 import 'package:kyc3/widgets/widgets.dart';
+import 'package:xmpp_stone/xmpp_stone.dart';
 
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({Key? key}) : super(key: key);
@@ -15,6 +19,8 @@ class GalleryScreen extends StatefulWidget {
 }
 
 class _GalleryScreenState extends State<GalleryScreen> {
+  StreamSubscription? _connSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -23,6 +29,29 @@ class _GalleryScreenState extends State<GalleryScreen> {
     if (blocMarket.state.items.isNotEmpty) {
       bloc.getUserPurchasedNfts();
     }
+
+    /// This is to notify when user is creating new account and as we're already
+    /// on main screen we need to get user's gallery when xmpp authentication connection
+    /// establishes stable connection with kyc server.
+    _connSubscription?.cancel();
+    _connSubscription = eventBus.on<ServerConnectionEvent>().listen((event) {
+      final state = event.connectionState;
+
+      switch (state) {
+        case XmppConnectionState.Ready:
+          blocMarket.getNftsList();
+          break;
+        default:
+
+        /// ignore if its null or any other state except defined above
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _connSubscription?.cancel();
   }
 
   @override
@@ -32,7 +61,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
       titleStyle: CustomStyles.appbarTitle,
       backgroundColor: context.homeBackgroundColor,
       isLeading: false,
-      title: "Gallery",
+      title: Strings.gallery,
       applyShape: true,
       actions: [
         BlocConsumer<ListTypeCubit, ListTypeState>(
@@ -64,65 +93,56 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 }
 
-class PurchasedNftList extends StatefulWidget {
+class PurchasedNftList extends StatelessWidget {
   const PurchasedNftList({Key? key}) : super(key: key);
-
-  @override
-  State<PurchasedNftList> createState() => _PurchasedNftListState();
-}
-
-class _PurchasedNftListState extends State<PurchasedNftList> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     final listState = context.watch<ListTypeCubit>().state;
-    final state = context.watch<GalleryCubit>().state;
+    final state = context.watch<GalleryCubit>().state as dynamic;
 
     switch (state.runtimeType) {
       case GalleryFailed:
         return NoDataFound(msg: (state as GalleryFailed).errorMessage);
+      case GalleryChange:
       case GallerySuccess:
-        final tokens = (state as GallerySuccess).tokens;
+        final tokens = state.tokens.reversed.toList();
 
         if (tokens.isEmpty) {
-          return const NoDataFound(msg: "No wallets to show!");
+          return const NoDataFound(msg: Strings.noPurchasedNft);
         }
 
         return CustomScrollView(
           slivers: [
             SliverPadding(
               padding: const EdgeInsets.only(
-                top: 13.0,
+                top: 8.0,
                 bottom: kBottomNavigationBarHeight,
-                left: 12.0,
-                right: 12.0,
+                left: 5.0,
+                right: 5.0,
               ),
               sliver: listState is ViewListType
                   ? SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (_, index) {
-                          final item = state.tokens[index];
+                          final item = tokens[index];
                           return ItemGalleryTile(model: item);
                         },
-                        childCount: state.tokens.length,
+                        childCount: tokens.length,
                       ),
                     )
                   : SliverGrid(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
-                          final item = state.tokens[index];
+                          final item = tokens[index];
                           return ItemGalleryGrid(model: item);
                         },
-                        childCount: state.tokens.length,
+                        childCount: tokens.length,
                       ),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        mainAxisSpacing: 15,
-                        crossAxisSpacing: 15,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 0.0,
                         childAspectRatio: 2 / 3,
                       ),
                     ),

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kyc3/app/app.dart';
 import 'package:kyc3/cubits/balance/balance_cubit.dart';
 import 'package:kyc3/widgets/widgets.dart';
-import 'package:provider/provider.dart';
 
 class CurrentBalanceWidget extends StatefulWidget {
   const CurrentBalanceWidget({Key? key}) : super(key: key);
@@ -65,7 +64,7 @@ class _CurrentBalanceWidgetState extends State<CurrentBalanceWidget> {
         ),
         h5,
         Texts(
-          " Current Balance".toUpperCase(),
+          " ${Strings.currentBalance}".toUpperCase(),
           textAlign: TextAlign.center,
           style: context.textTheme.bodyText2?.copyWith(fontSize: 14.0),
         ),

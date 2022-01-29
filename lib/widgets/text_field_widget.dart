@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:kyc3/app/app.dart';
 
 import 'text_widget.dart';
@@ -19,7 +18,7 @@ class TextFormFieldWidget extends StatefulWidget {
   final bool? isObscure;
   final TextEditingController controller;
   final FormFieldValidator<String>? validator;
-  final TextInputAction? actionKeyboard;
+  final TextInputAction? textInputAction;
   final ValueChanged<String?>? onSaved;
   final ValueChanged<String>? onFieldSubmitted;
   final Function? onFieldTap;
@@ -71,7 +70,7 @@ class TextFormFieldWidget extends StatefulWidget {
     this.errorText,
     this.isObscure = false,
     this.validator,
-    this.actionKeyboard = TextInputAction.next,
+    this.textInputAction = TextInputAction.next,
     this.onSaved,
     this.onFieldSubmitted,
     this.onFieldTap,
@@ -137,6 +136,7 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return EnsureVisible(
+      key: widget.key,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -161,7 +161,7 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
             cursorColor: Theme.of(context).primaryColor,
             obscureText: widget.isObscure!,
             keyboardType: widget.textInputType,
-            textInputAction: widget.actionKeyboard,
+            textInputAction: widget.textInputAction,
             focusNode: widget.focusNode,
             readOnly: widget.readOnly,
             enabled: widget.enabled,

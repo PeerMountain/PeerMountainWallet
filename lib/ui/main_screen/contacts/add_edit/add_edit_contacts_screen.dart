@@ -6,17 +6,22 @@ import 'package:kyc3/app/app.dart';
 import 'package:kyc3/models/hive_adapters/contact/kyc_contact.dart';
 import 'package:kyc3/utils/app_utils.dart';
 import 'package:kyc3/utils/validations.dart';
-import 'package:kyc3/widgets/base_scaffold.dart';
-import 'package:kyc3/widgets/button_widgets.dart';
-import 'package:kyc3/widgets/profile_image.dart';
-import 'package:kyc3/widgets/text_field_widget.dart';
 import 'package:kyc3/widgets/widgets.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class AddOrEditContactsScreen extends StatefulWidget {
+  final bool isMe;
+  final bool? isNew;
+  final String? title;
   final KycContact? contact;
 
-  const AddOrEditContactsScreen({Key? key, this.contact}) : super(key: key);
+  const AddOrEditContactsScreen({
+    Key? key,
+    this.contact,
+    required this.isMe,
+    this.title,
+    this.isNew,
+  }) : super(key: key);
 
   @override
   _AddOrEditContactsScreenState createState() => _AddOrEditContactsScreenState();
@@ -53,6 +58,10 @@ class _AddOrEditContactsScreenState extends State<AddOrEditContactsScreen> {
       filePath = contact.image;
       barcode = contact.blockchainAddress;
     }
+
+    if (widget.isMe) {
+      tcAddress.text = cryptoAccount.address!;
+    }
   }
 
   @override
@@ -71,16 +80,17 @@ class _AddOrEditContactsScreenState extends State<AddOrEditContactsScreen> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       titleStyle: CustomStyles.appbarTitle,
-      title: widget.contact != null ? "Edit Contact" : "New Contact",
+      title: widget.title ?? Strings.newContact,
       backgroundColor: context.homeBackgroundColor,
       actions: [
-        IconButton(
-          onPressed: scanBarcode,
-          icon: const SvgImage(
-            Assets.svgBarcode,
-            width: 24.0,
+        if (widget.isMe == false)
+          IconButton(
+            onPressed: scanBarcode,
+            icon: const SvgImage(
+              Assets.svgBarcode,
+              width: 24.0,
+            ),
           ),
-        ),
       ],
       child: Column(
         children: [
@@ -134,8 +144,9 @@ class _AddOrEditContactsScreenState extends State<AddOrEditContactsScreen> {
       controller: tcAddress,
       focusNode: fcAddress,
       autoCorrect: false,
+      readOnly: widget.isMe == true,
       label: Strings.blockChainAddress,
-      actionKeyboard: TextInputAction.next,
+      textInputAction: TextInputAction.next,
       onFieldSubmitted: (v) => changeFocus(context, fcAddress, fcNickname),
     );
   }
@@ -145,7 +156,7 @@ class _AddOrEditContactsScreenState extends State<AddOrEditContactsScreen> {
       controller: tcNickname,
       focusNode: fcNickname,
       label: Strings.nickName,
-      actionKeyboard: TextInputAction.next,
+      textInputAction: TextInputAction.next,
       onFieldSubmitted: (v) => changeFocus(context, fcNickname, fcFullname),
     );
   }
@@ -155,7 +166,7 @@ class _AddOrEditContactsScreenState extends State<AddOrEditContactsScreen> {
       controller: tcFullname,
       focusNode: fcFullname,
       label: Strings.fullname,
-      actionKeyboard: TextInputAction.done,
+      textInputAction: TextInputAction.done,
       onFieldSubmitted: (v) => hideKeyboard(context),
     );
   }
@@ -170,7 +181,7 @@ class _AddOrEditContactsScreenState extends State<AddOrEditContactsScreen> {
           minRating: 0,
           itemCount: 5,
           itemSize: 24.0,
-          initialRating: _trustLevel.toDouble(),
+          initialRating: _trustLevel?.toDouble() ?? 0,
           ignoreGestures: false,
           allowHalfRating: true,
           direction: Axis.horizontal,
@@ -207,41 +218,61 @@ class _AddOrEditContactsScreenState extends State<AddOrEditContactsScreen> {
       return;
     }
 
-    if (!validator.isValidName(nickname)) {
+    if (nickname.isEmpty) {
       showErrorSnackbar('Please enter nick name');
       return;
     }
 
-    if (!validator.isValidName(nickname)) {
+    if (!validator.isValidName(nickname, allowNumbers: true)) {
       showErrorSnackbar('Please enter valid nick name');
       return;
     }
 
-    if (!validator.isValidName(fullname)) {
+    if (fullname.isEmpty) {
       showErrorSnackbar('Please enter full name');
       return;
     }
 
-    if (!validator.isValidName(fullname)) {
+    if (!validator.isValidName(fullname, allowNumbers: true)) {
       showErrorSnackbar('Please enter valid full name');
       return;
     }
 
     hideKeyboard(context);
 
-    /// if its NULL then it means user is adding new contact
-    /// if its NOT then it should update current contact in storage
-    if (widget.contact == null) {
-      final contact = KycContact()
+    /// if user is setting up his/her own profile then save that
+    /// data to local storage and ignore other operations
+    if (widget.isMe == true) {
+      final contact = widget.contact ?? KycContact()
         ..blockchainAddress = address
-        // ..ownerJid = cryptoAccount.address!.addXmppKycHost()
         ..jid = address.addXmppKycHost()
         ..nickName = nickname
         ..fullName = fullname
         ..image = filePath
         ..trustLevel = _trustLevel;
+      if (widget.contact == null) {
+        hiveStorage.addUser(contact);
+        showSuccessSnackbar("Profile saved successfully!");
+      } else {
+        hiveStorage.updateUser(contact);
+        showSuccessSnackbar("Profile updated successfully!");
+      }
+      return;
+    }
 
-      await hiveStorage.addContact(contact);
+    /// if its NULL then it means user is adding new contact
+    /// if its NOT then it should update current contact in storage
+
+    if (widget.isNew == true) {
+      final newContact = KycContact()
+        ..jid = address.addXmppKycHost()
+        ..ownerJid = cryptoAccount.address!.addXmppKycHost()
+        ..blockchainAddress = address
+        ..nickName = nickname
+        ..fullName = fullname
+        ..image = filePath
+        ..trustLevel = _trustLevel;
+      await hiveStorage.addContact(newContact);
       showSuccessSnackbar("Contact saved successfully!");
       tcAddress.clear();
       tcNickname.clear();
@@ -251,9 +282,9 @@ class _AddOrEditContactsScreenState extends State<AddOrEditContactsScreen> {
       setState(() {});
     } else {
       final contact = widget.contact!
-        ..blockchainAddress = address
-        ..ownerJid = cryptoAccount.address
         ..jid = address.addXmppKycHost()
+        ..ownerJid = cryptoAccount.address!.addXmppKycHost()
+        ..blockchainAddress = address
         ..nickName = nickname
         ..fullName = fullname
         ..image = filePath

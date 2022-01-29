@@ -5,7 +5,7 @@ import '../widgets.dart';
 
 typedef KeyboardTapCallback = void Function(String? text);
 
-class NumericKeyboard extends StatefulWidget {
+class NumericKeyboard extends StatelessWidget {
   /// Color of the text [default = Colors.black]
   final Color textColor;
 
@@ -27,6 +27,12 @@ class NumericKeyboard extends StatefulWidget {
   /// Main axis alignment [default = MainAxisAlignment.spaceEvenly]
   final MainAxisAlignment mainAxisAlignment;
 
+  final bool? showDot;
+
+  final VoidCallback? onDoneTap;
+
+  final IconData? doneIcon;
+
   const NumericKeyboard({
     Key? key,
     required this.onKeyboardTap,
@@ -36,56 +42,52 @@ class NumericKeyboard extends StatefulWidget {
     this.leftButtonFn,
     this.leftIcon,
     this.mainAxisAlignment = MainAxisAlignment.spaceBetween,
+    this.showDot = true,
+    this.onDoneTap,
+    this.doneIcon,
   }) : super(key: key);
 
-  @override
-  State<StatefulWidget> createState() {
-    return _NumericKeyboardState();
-  }
-}
-
-class _NumericKeyboardState extends State<NumericKeyboard> {
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         Expanded(
           child: Row(
-            mainAxisAlignment: widget.mainAxisAlignment,
+            mainAxisAlignment: mainAxisAlignment,
             children: <Widget>[
-              _calcButton('1'),
-              _calcButton('2'),
-              _calcButton('3'),
+              _calcButton(context, '1'),
+              _calcButton(context, '2'),
+              _calcButton(context, '3'),
             ],
           ),
         ),
         Expanded(
           child: Row(
-            mainAxisAlignment: widget.mainAxisAlignment,
+            mainAxisAlignment: mainAxisAlignment,
             children: <Widget>[
-              _calcButton('4'),
-              _calcButton('5'),
-              _calcButton('6'),
+              _calcButton(context, '4'),
+              _calcButton(context, '5'),
+              _calcButton(context, '6'),
             ],
           ),
         ),
         Expanded(
           child: Row(
-            mainAxisAlignment: widget.mainAxisAlignment,
+            mainAxisAlignment: mainAxisAlignment,
             children: <Widget>[
-              _calcButton('7'),
-              _calcButton('8'),
-              _calcButton('9'),
+              _calcButton(context, '7'),
+              _calcButton(context, '8'),
+              _calcButton(context, '9'),
             ],
           ),
         ),
         Expanded(
           child: Row(
-            mainAxisAlignment: widget.mainAxisAlignment,
+            mainAxisAlignment: mainAxisAlignment,
             children: <Widget>[
-              _calcButton('.'),
-              _calcButton('0'),
-              _deleteButton(),
+              _deleteButton(context),
+              _calcButton(context, '0'),
+              if (onDoneTap != null) _doneButton(context) else _calcButton(context, showDot! ? '.' : ""),
             ],
           ),
         ),
@@ -93,20 +95,34 @@ class _NumericKeyboardState extends State<NumericKeyboard> {
     );
   }
 
-  Widget _deleteButton() {
+  Widget _deleteButton(BuildContext context) {
     return Expanded(
-      child: InkWell(
-        // borderRadius: BorderRadius.circular(50),
-        onTap: () {
-          widget.onKeyboardTap(null);
-        },
-        child: FittedBox(
-          child: SizedBox(
-            width: 80,
-            height: 80,
-            child: Icon(
-              Icons.backspace_outlined,
-              color: context.textColor,
+      child: SizedBox.expand(
+        child: MaterialButton(
+          onPressed: () => onKeyboardTap(null),
+          child: Icon(
+            Icons.backspace,
+            color: context.textColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _doneButton(BuildContext context) {
+    return Expanded(
+      child: MaterialButton(
+        onPressed: onDoneTap,
+        child: SizedBox.expand(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              backgroundColor: context.primaryColor,
+              child: Icon(
+                doneIcon ?? Icons.done,
+                color: Colors.white,
+                size: 32,
+              ),
             ),
           ),
         ),
@@ -114,21 +130,19 @@ class _NumericKeyboardState extends State<NumericKeyboard> {
     );
   }
 
-  Widget _calcButton(String value) {
+  Widget _calcButton(BuildContext context, String value) {
     return Expanded(
-      child: InkWell(
-        // borderRadius: BorderRadius.circular(80),
-        onTap: () {
-          widget.onKeyboardTap(value);
-        },
-        child: FittedBox(
-          child: SizedBox(
-            width: 80,
-            height: 80,
-            child: Center(
-              child: Texts(
-                value,
-                fontSize: 26,
+      child: SizedBox.expand(
+        child: MaterialButton(
+          onPressed: value.isEmpty
+              ? null
+              : () {
+                  onKeyboardTap(value);
+                },
+          child: Center(
+            child: Texts(
+              value,
+              style: context.textTheme.headline5?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: context.textColor,
               ),

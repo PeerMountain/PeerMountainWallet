@@ -34,7 +34,7 @@ class _SearchTextFieldState extends State<SearchTextField> {
       hintText: widget.hint ?? "Search",
       controller: widget.controller,
       textInputType: TextInputType.text,
-      actionKeyboard: TextInputAction.done,
+      textInputAction: TextInputAction.done,
       onChanged: onSearchInputChange,
       hasDecoration: true,
       enabledBorder: OutlineInputBorder(

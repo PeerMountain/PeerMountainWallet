@@ -6,7 +6,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:kyc3/cubits/cubits.dart';
@@ -19,11 +18,13 @@ import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
 import 'app.dart';
 import 'storage/hive_storage.dart';
+import 'storage/secure_storage.dart';
 
 double screenHeight = 0.0;
 double screenWidth = 0.0;
 
 bool isEmulator = false;
+bool isChatScreenOpen = false;
 
 final eventBus = EventBus();
 final deviceInfoService = locator<DeviceInfoService>();
@@ -38,6 +39,7 @@ final normalXmppService = locator<NormalXmppService>();
 
 final prefs = locator<Prefs>();
 final safeStorage = locator<BioStorage>();
+final secureStorage = locator<SecureStorage>();
 final hiveStorage = locator<HiveStorage>();
 
 const NA = "NA";
@@ -136,7 +138,9 @@ void showCustomBotToastNotification(String title, String? message, {VoidCallback
 }
 
 Future<void> showSnackbar([String? msg, BuildContext? context, Color? color]) async {
-  ScaffoldMessenger.of(context ?? StackedService.navigatorKey!.currentContext!).showSnackBar(
+  final c = context ?? StackedService.navigatorKey!.currentContext!;
+  ScaffoldMessenger.of(c).removeCurrentSnackBar();
+  ScaffoldMessenger.of(c).showSnackBar(
     SnackBar(
       backgroundColor: color,
       content: Text(
@@ -149,7 +153,9 @@ Future<void> showSnackbar([String? msg, BuildContext? context, Color? color]) as
 }
 
 Future<void> showSuccessSnackbar([String? msg, BuildContext? context]) async {
-  ScaffoldMessenger.of(context ?? StackedService.navigatorKey!.currentContext!).showSnackBar(
+  final c = context ?? StackedService.navigatorKey!.currentContext!;
+  ScaffoldMessenger.of(c).removeCurrentSnackBar();
+  ScaffoldMessenger.of(c).showSnackBar(
     SnackBar(
       backgroundColor: Colors.green,
       content: Text(
@@ -162,7 +168,9 @@ Future<void> showSuccessSnackbar([String? msg, BuildContext? context]) async {
 }
 
 Future<void> showErrorSnackbar([String? msg, BuildContext? context]) async {
-  ScaffoldMessenger.of(context ?? StackedService.navigatorKey!.currentContext!).showSnackBar(
+  final c = context ?? StackedService.navigatorKey!.currentContext!;
+  ScaffoldMessenger.of(c).removeCurrentSnackBar();
+  ScaffoldMessenger.of(c).showSnackBar(
     SnackBar(
       backgroundColor: Colors.red,
       content: Text(
@@ -273,11 +281,16 @@ Future<dynamic> showSuccessDialog({String? title, String? description}) async {
   );
 }
 
-Future<dynamic> showErrorDialog({String? title, String? description}) async {
+Future<dynamic> showErrorDialog({
+  String? title,
+  String? description,
+  String? okText,
+}) async {
   return await dialogService.showCustomDialog(
     variant: DialogType.error,
     title: title ?? "Error!",
     description: description,
+    mainButtonTitle: okText,
   );
 }
 

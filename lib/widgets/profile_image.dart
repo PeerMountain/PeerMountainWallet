@@ -38,6 +38,16 @@ class ProfileImage extends StatelessWidget {
     double? kRadius = radius?.toDouble();
     kRadius ??= 50;
 
+    final placeholder = CircleAvatar(
+      radius: kRadius,
+      backgroundColor: Colors.grey[300],
+      child: Icon(
+        Icons.add,
+        color: context.primaryColor,
+        size: kRadius * 0.85,
+      ),
+    );
+
     return Center(
       child: RawMaterialButton(
         onPressed: onTap,
@@ -53,22 +63,15 @@ class ProfileImage extends StatelessWidget {
                       radius: kRadius,
                       isRound: true,
                     )
-                  : imageFile == null
-                      ? CircleAvatar(
-                          radius: kRadius,
-                          backgroundColor: Colors.grey[300],
-                          child: Icon(
-                            Icons.add,
-                            color: context.primaryColor,
-                            size: kRadius * 0.85,
-                          ),
-                        )
+                  : (imageFile == null || imageFile?.isEmpty == true)
+                      ? placeholder
                       : ClipOval(
                           child: Image.file(
                             File(imageFile!),
                             width: kWidth,
                             height: kHeight,
                             fit: BoxFit.cover,
+                            errorBuilder: (_, error, stacktrace) => placeholder,
                           ),
                         ),
             ],

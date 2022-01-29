@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kyc3/app/app.dart';
 import 'package:kyc3/widgets/widgets.dart';
 
 class NoRouteFoundScreen extends StatelessWidget {
@@ -6,10 +7,6 @@ class NoRouteFoundScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: NoDataFound(
-        msg: "No route found!",
-      ),
-    );
+    return const Scaffold(body: NoDataFound(msg: Strings.noRouteFound));
   }
 }

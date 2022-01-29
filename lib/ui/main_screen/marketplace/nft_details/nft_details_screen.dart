@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kyc3/app/app.dart';
-import 'package:kyc3/generated/com/kyc3/oracle/nft/nft.pb.dart';
+import 'package:kyc3/generated/com/kyc3/oracle/nft/signed-nft.pb.dart';
 import 'package:kyc3/ui/main_screen/marketplace/market_cubit.dart';
 import 'package:kyc3/ui/main_screen/marketplace/nft_details/nft_details_cubit.dart';
 import 'package:kyc3/widgets/cached_image.dart';
 import 'package:kyc3/widgets/widgets.dart';
-import 'package:velocity_x/velocity_x.dart';
 
 class NftDetailsScreen extends StatefulWidget {
-  final NftSettings nft;
+  final SignedNftSettings signedNft;
 
-  const NftDetailsScreen({Key? key, required this.nft}) : super(key: key);
+  const NftDetailsScreen({Key? key, required this.signedNft}) : super(key: key);
 
   @override
   _NftDetailsScreenState createState() => _NftDetailsScreenState();
@@ -25,9 +24,10 @@ class _NftDetailsScreenState extends State<NftDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final nft = widget.nft;
+    final nft = widget.signedNft.nft;
+
     return BaseScaffold(
-      title: "Services",
+      title: Strings.services,
       child: BlocProvider<NftDetailsCubit>(
         create: (context) => NftDetailsCubit(),
         child: BlocConsumer<MarketCubit, MarketPlaceState>(
@@ -85,7 +85,7 @@ class _NftDetailsScreenState extends State<NftDetailsScreen> {
                             FloatingActionButton(
                               heroTag: null,
                               onPressed: () {},
-                              tooltip: "Favourite",
+                              tooltip: Strings.favourite,
                               child: SvgImage(
                                 Assets.svgHeartEmpty,
                                 color: context.textColor,

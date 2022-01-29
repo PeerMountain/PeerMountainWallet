@@ -1,6 +1,7 @@
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/nft/nft.pb.dart';
+import 'package:kyc3/generated/com/kyc3/oracle/nft/signed-nft.pb.dart';
 import 'package:kyc3/models/hive_adapters/contact/kyc_contact.dart';
 import 'package:kyc3/models/models.dart';
 import 'package:kyc3/ui/screens.dart';
@@ -23,6 +24,8 @@ enum Routes {
   depositAmount,
   nftDetailsScreen,
   allInvoicesScreen,
+  createOrChangePin,
+  validatePin,
 }
 
 extension RouteExt on Routes {
@@ -62,14 +65,21 @@ class AppRouter {
 
         /// main screens
         case Routes.mainScreen:
-          screen = const MainScreen();
+          final args = settings.arguments ?? false;
+
+          screen = MainScreen(sendRequest: args as bool);
           break;
         case Routes.setSecurityPin:
           // TODO: Handle this case.
           break;
         case Routes.addOrEditContacts:
           final args = settings.arguments as EditContactsArguments?;
-          screen = AddOrEditContactsScreen(contact: args?.contact);
+          screen = AddOrEditContactsScreen(
+            isMe: args?.isMe ?? false,
+            contact: args?.contact,
+            title: args?.title,
+            isNew: args?.isNew,
+          );
           break;
         case Routes.scanContactQrCode:
           final args = settings.arguments as StringOnlyArguments?;
@@ -95,10 +105,16 @@ class AppRouter {
           break;
         case Routes.nftDetailsScreen:
           final args = settings.arguments as NftDetailsScreenArguments;
-          screen = NftDetailsScreen(nft: args.nft);
+          screen = NftDetailsScreen(signedNft: args.signedNft);
           break;
         case Routes.allInvoicesScreen:
           screen = const AllInvoicesScreen();
+          break;
+        case Routes.createOrChangePin:
+          screen = CreateOrChangePinScreen(isNew: settings.arguments as bool);
+          break;
+        case Routes.validatePin:
+          screen = const ValidatePinScreen();
           break;
         default:
       }
@@ -116,9 +132,12 @@ class VerifyWordsArguments {
 }
 
 class EditContactsArguments {
+  final bool? isMe;
+  final bool? isNew;
+  final String? title;
   final KycContact? contact;
 
-  EditContactsArguments({this.contact});
+  EditContactsArguments({this.isMe, this.isNew, this.title, this.contact});
 }
 
 class StringOnlyArguments {
@@ -135,7 +154,7 @@ class ChatScreenArguments {
 }
 
 class NftDetailsScreenArguments {
-  final NftSettings nft;
+  final SignedNftSettings signedNft;
 
-  NftDetailsScreenArguments({required this.nft});
+  NftDetailsScreenArguments({required this.signedNft});
 }

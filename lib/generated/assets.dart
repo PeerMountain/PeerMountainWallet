@@ -34,10 +34,12 @@ class Assets {
   static const String svgError = 'assets/svg/error.svg';
   static const String svgHeartEmpty = 'assets/svg/heart_empty.svg';
   static const String svgHeartFilled = 'assets/svg/heart_filled.svg';
+  static const String svgHiddenEye = 'assets/svg/hidden_eye.svg';
   static const String svgLocation = 'assets/svg/location.svg';
   static const String svgLocationPin = 'assets/svg/location_pin.svg';
   static const String svgLogout = 'assets/svg/logout.svg';
   static const String svgMarketplace = 'assets/svg/marketplace.svg';
+  static const String svgOpenEye = 'assets/svg/open_eye.svg';
   static const String svgSend = 'assets/svg/send.svg';
   static const String svgSendContacts = 'assets/svg/send_contacts.svg';
   static const String svgSetting = 'assets/svg/setting.svg';

@@ -7,9 +7,18 @@ import 'package:kyc3/widgets/cached_image.dart';
 import 'package:kyc3/widgets/widgets.dart';
 
 class ItemContact extends StatelessWidget {
+  final VoidCallback? onTap;
+  final bool? showChat;
+  final bool? readOnly;
   final KycContact contact;
 
-  const ItemContact({Key? key, required this.contact}) : super(key: key);
+  const ItemContact({
+    Key? key,
+    required this.contact,
+    this.onTap,
+    this.readOnly,
+    this.showChat = true,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -68,18 +77,20 @@ class ItemContact extends StatelessWidget {
           ],
         ),
       ),
-      trailing: GestureDetector(
-        onTap: () {},
-        child: CircleAvatar(
-          backgroundColor: context.primaryColor,
-          child: SvgPicture.asset(
-            Assets.svgSend,
-            color: Colors.white,
-            width: 16.0,
-            height: 16.0,
-          ),
-        ),
-      ),
+      trailing: showChat == false
+          ? null
+          : GestureDetector(
+              onTap: () {},
+              child: CircleAvatar(
+                backgroundColor: context.primaryColor,
+                child: SvgPicture.asset(
+                  Assets.svgSend,
+                  color: Colors.white,
+                  width: 16.0,
+                  height: 16.0,
+                ),
+              ),
+            ),
     );
 
     return Container(
@@ -93,6 +104,7 @@ class ItemContact extends StatelessWidget {
       margin: const EdgeInsets.only(left: 10.0, right: 10.0),
       child: Slidable(
         key: ValueKey(contact.jid!),
+        enabled: readOnly == false,
         endActionPane: ActionPane(
           motion: const StretchMotion(),
           children: [
@@ -101,7 +113,7 @@ class ItemContact extends StatelessWidget {
               backgroundColor: Palette.red,
               foregroundColor: Colors.white,
               icon: Icons.delete,
-              label: 'Delete',
+              label: Strings.delete,
             ),
           ],
         ),
@@ -109,14 +121,17 @@ class ItemContact extends StatelessWidget {
         // Actual child to be shown
         child: GestureDetector(
           child: child,
-          onTap: () {
-            navigationService.navigateTo(
-              Routes.addOrEditContacts.value,
-              arguments: EditContactsArguments(
-                contact: contact,
-              ),
-            );
-          },
+          onTap: onTap ??
+              () {
+                navigationService.navigateTo(
+                  Routes.addOrEditContacts.value,
+                  arguments: EditContactsArguments(
+                    contact: contact,
+                    title: contact.fullName,
+                    isNew: false,
+                  ),
+                );
+              },
         ),
       ),
     );

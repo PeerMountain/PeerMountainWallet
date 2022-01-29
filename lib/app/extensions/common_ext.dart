@@ -10,8 +10,6 @@ import 'package:web3dart/credentials.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
-import '../globals.dart';
-
 /// A short typedef function for dynamic maps
 typedef DMap = Map<String, dynamic>;
 
@@ -38,10 +36,6 @@ extension DoubletExtension on double {
 }
 
 extension ObjectExtention on Object? {
-  int toInt() => int.parse(toString());
-
-  double toDouble() => double.parse(toString());
-
   bool get isNotNull => this != null;
 
   bool get isNull => this == null;

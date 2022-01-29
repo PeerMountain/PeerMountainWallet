@@ -1,5 +1,3 @@
-export 'package:kyc3/app/app.dart';
-
 export 'base_scaffold.dart';
 export 'button_widgets.dart';
 export 'dialogs/error_dialog.dart';

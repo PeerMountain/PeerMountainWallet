@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:kyc3/app/app.dart';
 
 import '../widgets.dart';
 
@@ -11,7 +12,7 @@ class CupertinoSelectImageActionSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoActionSheet(
       title: const Texts(
-        'Choose Options',
+        Strings.chooseOptions,
         fontSize: 17.0,
         fontWeight: FontWeight.w600,
         height: 1.3,
@@ -21,7 +22,7 @@ class CupertinoSelectImageActionSheet extends StatelessWidget {
       actions: <Widget>[
         CupertinoActionSheetAction(
           child: Texts(
-            'Camera',
+            Strings.camera,
             fontSize: 20.0,
             fontWeight: FontWeight.w400,
             color: Theme.of(context).primaryColor,
@@ -32,7 +33,7 @@ class CupertinoSelectImageActionSheet extends StatelessWidget {
         ),
         CupertinoActionSheetAction(
           child: Texts(
-            'Gallery',
+            Strings.gallery,
             fontSize: 20.0,
             fontWeight: FontWeight.w400,
             color: Theme.of(context).primaryColor,
@@ -43,7 +44,7 @@ class CupertinoSelectImageActionSheet extends StatelessWidget {
         )
       ],
       cancelButton: CupertinoActionSheetAction(
-        child: const Text('Cancel'),
+        child: const Text(Strings.cancel),
         isDefaultAction: true,
         onPressed: () => Navigator.of(context).pop(),
       ),

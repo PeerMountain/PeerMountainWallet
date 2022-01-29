@@ -1,8 +1,6 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:kyc3/app/app.dart';
-import 'package:kyc3/app/router/routes.dart';
 import 'package:kyc3/models/models.dart';
 import 'package:kyc3/services/services.dart';
 import 'package:kyc3/widgets/widgets.dart';
@@ -34,12 +32,11 @@ class _VerifyKeywordsScreenState extends State<VerifyKeywordsScreen> {
   @override
   void initState() {
     super.initState();
-    privateKey = widget.privateKey;
-
     initData();
   }
 
   void initData() {
+    privateKey = widget.privateKey;
     originalPhraseList = widget.phraseList.toList();
 
     /// generate new random other words and add into verification list
@@ -56,14 +53,14 @@ class _VerifyKeywordsScreenState extends State<VerifyKeywordsScreen> {
       )..shuffle();
 
       /// get any 6 random shuffled words from [original] mnemonics list
-      original6WordsList = originalPhraseList.toList()..shuffle();
-      original6WordsList = original6WordsList.getRange(0, 6).toList();
+      final temp = originalPhraseList.toList()..shuffle();
+      original6WordsList = temp.take(6).toList();
 
       /// ONLY IN DEBUG MODE FOR DEV EASE CASE
       /// replaces first 6 words of newly generated list with [originalPhraseList]
       /// so that users can directly verify first 6 words of their
       /// original account's mnemonics
-      if (kDebugMode || kReleaseMode) {
+      if (kDebugMode) {
         ksList.setRange(0, 6, original6WordsList);
       } else {
         final randomInts = List<int>.generate(24, (int index) => index);
@@ -168,7 +165,7 @@ class _VerifyKeywordsScreenState extends State<VerifyKeywordsScreen> {
                         padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 3.0),
                         children: shuffledPhraseList.mapIndexed(
                           (index, word) {
-                            bool isSelected = index < 6;
+                            bool isSelected = kDebugMode ? index < 6 : false;
                             return ItemWords(
                               word: word,
                               text: isSelected ? "${word.name}*" : word.name,
@@ -194,8 +191,7 @@ class _VerifyKeywordsScreenState extends State<VerifyKeywordsScreen> {
                   padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0, top: 8.0),
                   child: FilledButton(
                     onTap: onSubmit,
-                    // splashFactory: NoSplash.splashFactory,
-                    text: Strings.iHaveWrittenDown,
+                    text: Strings.verify,
                   ),
                 ),
               ],
@@ -219,7 +215,12 @@ class _VerifyKeywordsScreenState extends State<VerifyKeywordsScreen> {
   }
 
   void onSubmit() async {
+    if (usersPhraseList.length != 6) {
+      showErrorSnackbar("Invalid pass-phrase!");
+      return;
+    }
     final first6OfUsersList = usersPhraseList.toList().take(6).toList();
+
     final isListHasAllTheWords =
         const UnorderedIterableEquality().equals(original6WordsList, first6OfUsersList);
 
@@ -230,23 +231,68 @@ class _VerifyKeywordsScreenState extends State<VerifyKeywordsScreen> {
 
     /// On Success will goto main screen otherwise
     /// Error has been handled in below methods directly
-    final didSave = await safeStorage.savePrivateKey(privateKey);
+    final didSave = await safeStorage.savePrivateKey(
+      privateKey,
+      cancelText: Strings.usePin,
+      onUsePin: () {
+        showLog("onUsePin");
+        createPin(isUsePin: true);
+      },
+      errorHwUnavailable: () {
+        showLog("errorHwUnavailable");
+        createPin();
+      },
+      errorNoHardware: () {
+        showLog("errorNoHardware");
+        createPin();
+      },
+      statusUnknown: () {
+        showLog("statusUnknown");
+        createPin();
+      },
+      errorNoBiometricEnrolled: () async {
+        showLog("errorNoBiometricEnrolled");
+        createPin();
+      },
+    );
 
     if (didSave == true) {
-      /// signup user to server here
+      prefs.setAuthType(Keys.bio);
       signUpUserOnServer();
     }
   }
 
-  void signUpUserOnServer() {
+  void createPin({bool isUsePin = false}) async {
+    if (!isUsePin) {
+      final result = await showErrorDialog(
+        title: Strings.authenticationFailed,
+        description: Strings.errorMsgAuthFailed,
+        okText: Strings.usePin,
+      );
+    }
+
+    /// create new pin here
+    final response = await navUtils.gotoCreateOrChangePinScreen();
+
+    if (response == true) {
+      prefs.setAuthType(Keys.pin);
+      signUpUserOnServer();
+    }
+  }
+
+  void signUpUserOnServer() async {
+    /// Save in secure storage also because if user has bio metrics enrolled
+    /// while sign up and if user removes it later on we wont be able to
+    /// retrieve user's private key from bio storage instead we have to use
+    /// secure storage as a backup private key for user's account retrieval
+    /// when user restarts the application.
+    await secureStorage.savePrivateKey(privateKey);
+
+    /// login user to server here
+    /// Assign new account as user's current crypto account into app.
     cryptoAccount = web3Service.getUserCryptoAccount(privateKey)!;
     showLoader();
     anonymousReceiveService.isNewUser = true;
     anonymousSendService.sendExchangeKeyRequest();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

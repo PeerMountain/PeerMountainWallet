@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kyc3/app/app.dart';
-import 'package:kyc3/app/router/routes.dart';
 import 'package:kyc3/models/models.dart';
-import 'package:kyc3/widgets/text_widget.dart';
 import 'package:kyc3/widgets/widgets.dart';
 
 import '../widgets/item_words.dart';
@@ -46,6 +44,7 @@ class _GenerateKeywordsScreenState extends State<GenerateKeywordsScreen> {
   @override
   Widget build(BuildContext context) {
     return SecureScreen(
+      isSecure: false,
       child: BaseScaffold(
         isAppbar: true,
         hasBack: false,

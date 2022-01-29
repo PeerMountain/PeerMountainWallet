@@ -2,10 +2,8 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:kyc3/app/app.dart';
-import 'package:kyc3/generated/assets.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/challenge-signed.pb.dart';
 import 'package:kyc3/services/services.dart';
-import 'package:kyc3/services/web3/web3_utils.dart';
 import 'package:kyc3/utils/eth/abi.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
@@ -381,4 +379,37 @@ class Web3Repository {
       showLog("encodePaymentValues exception stackTrace =====>>> $stackTrace");
     }
   }
+
+  /// Transfer ownership of nft from one account to specified receiver's account.
+  ///
+  /// types: ["address", "uint256", "uint256", "address"]
+  /// values: [receiverAddress, tokenId, senderNonce, cashierV2InstanceAddress]
+
+  Future<dynamic> encodeAndSendNftTransferRequest({required String receiverAddress, required int tokenId}) async {
+    try {
+      final messageHash = rawEncode(
+        ["address", "uint256", "uint256", "address"],
+        [
+          receiverAddress,
+          tokenId,
+          Web3Utils.getRandomInt(),
+          cashierContractAddressString,
+        ],
+      );
+
+      final message = bytesToHex(messageHash, include0x: true);
+
+      /// Sign challenged received from server
+      final signature = await web3Service.signPersonalMessage(payload: message);
+
+      showLog("encodeAndSendNftTransferRequest =====>>> $message");
+
+      normalSendService.sendNftTransferRequest(message: message, signature: signature![Keys.signature]);
+      return Keys.success;
+    } catch (e, stackTrace) {
+      showLog("encodeAndSendNftTransferRequest exception =====>>> $e");
+      showLog("encodeAndSendNftTransferRequest exception stackTrace =====>>> $stackTrace");
+    }
+  }
+
 }

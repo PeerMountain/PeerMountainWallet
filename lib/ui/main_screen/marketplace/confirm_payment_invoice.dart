@@ -22,7 +22,7 @@ class ConfirmPaymentInvoiceDialog extends StatelessWidget {
     final invoice = initiateNFTPurchaseResponse.invoice;
     return BaseScaffold(
       title: Texts(
-        "Buy ${nft.name}",
+        "${Strings.buy} ${nft.name}",
         color: context.textBlack,
         fontSize: 20.0,
         fontWeight: FontWeight.bold,
@@ -44,7 +44,7 @@ class ConfirmPaymentInvoiceDialog extends StatelessWidget {
               children: [
                 SizedBox(height: screenHeight * 0.10),
                 Texts(
-                  "Total ${Units.pmtn}",
+                  "${Strings.total} ${Units.pmtn}",
                   fontSize: 13.0,
                   textAlign: TextAlign.center,
                   color: context.subtitleColor,
@@ -61,7 +61,7 @@ class ConfirmPaymentInvoiceDialog extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Texts(
-                        "Invoice No :",
+                        "${Strings.invoiceNo} :",
                         fontSize: 16.0,
                         color: context.subtitleColor,
                       ),
@@ -94,7 +94,7 @@ class ConfirmPaymentInvoiceDialog extends StatelessWidget {
           Expanded(
             child: FilledButton(
               onTap: () => navigationService.back(result: false),
-              text: "Cancel",
+              text: Strings.cancel,
               color: Palette.red,
               applyGradient: false,
             ),
@@ -103,7 +103,7 @@ class ConfirmPaymentInvoiceDialog extends StatelessWidget {
           Expanded(
             child: FilledButton(
               onTap: () => navigationService.back(result: true),
-              text: "Pay Now",
+              text: Strings.payNow,
             ),
           ),
         ],

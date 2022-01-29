@@ -1,9 +1,9 @@
-class Strings {
-  static const noInternet = "No internet connected!";
+import 'app.dart';
 
-  static const String? sk1 = "dotenv.env['SK_1']";
-  static const String? sk2 = "dotenv.env['SK_2']";
-  static const String? sk3 = "dotenv.env['SK_3']";
+class Strings {
+  static const appTitle = "Peermountain";
+
+  static const noInternet = "No internet connected!";
 
   static const skip = "Skip";
   static const next = "Next";
@@ -67,7 +67,6 @@ class Strings {
   static const sExtra3 = "Your profile is never saved to the cloud storage\nor standard device backup.";
 
   static const add = "Add";
-  static const newContacts = "New Contact";
   static const sendContacts = "Send Contact";
 
   static const save = "Save";
@@ -126,5 +125,94 @@ class Strings {
 
   static const areYouSureLogout = "Are your sure you want to logout?";
 
-  static String? couldNotSignupUser="Couldn't signup user please try again later!";
+  static const couldNotSignupUser = "Couldn't signup user please try again later!";
+
+  static const profile = "Profile";
+  static const keyPhraseAlreadyExists = "Key phrase already exists.";
+  static const maxKeyPhraseError = "Maximum key phrase limit exceed that is 24 keywords. "
+      "You can now click on submit button to verify your keywords!";
+
+  static const invalidMnemonics = "Invalid mnemonic phrases provided!";
+  static const pleaseEnterPvKey = "Please enter your private key to continue!";
+
+  static const selectImportType = "Select import type";
+  static const usingPvKey = "Using Private Key";
+  static const usingMnemonics = "Using Mnemonic Phrases";
+
+  static const addToContact = "Add To Contact";
+  static const yesterday = "Yesterday";
+  static const today = "Today";
+  static const noRouteFound = "No route found!";
+
+  static const currentAllowance = "Current Allowance Balance";
+  static const currentBalance = "Current Balance";
+  static const currentMintBalance = "Current Mint Balance";
+  static const minAmountHint = "Min. ${Units.pmtn} 1.0";
+  static const maxAmount = "Min. ${Units.pmtn} 100,00";
+  static const enterAmount = "Enter amount";
+
+  static const minAmountErrorTextField = "Min ${Units.pmtn} 1, Max ${Units.pmtn} 100,000";
+  static const minAmountError = "Amount to enter should be between 1 and 100,000";
+
+  static const invoices = "Invoices";
+  static const noInvoices = "No invoices yet!";
+  static const newContact = "New Contact";
+
+  static const walletAddress = "Wallet Address";
+  static const qrCode = "QR Code";
+  static const scanQRCode = "Scan QR Code";
+
+  static const addressCopied = "Address copied!";
+
+  static const noContacts = "No contacts!";
+  static const conversations = "Conversations";
+  static const noConversations = "No conversations!";
+
+  static const searchConversation = "Search Conversation";
+
+  static const gallery = "Gallery";
+  static const noPurchasedNft = "No nfts to show!";
+  static const services = "Services";
+  static const favourite = "Favourite";
+
+  static const payNow = "Pay Now";
+  static const invoiceNo = "Invoice No";
+  static const total = "Total";
+  static const buy = "Buy";
+  static const marketplace = "Marketplace";
+  static const nfts = "NFTs";
+  static const price = "Price";
+  static const settings = "Settings";
+  static const peerMountain = "PeerMountain";
+  static const chooseOptions = "Choose Options";
+  static const camera = "Camera";
+
+  static const verify = "Verify";
+  static const defaultAuthTitle = "Authenticate to unlock data";
+
+  static const createPin = "Create Pin";
+  static const verifyPin = "Verify Pin";
+  static const enterYourPin = "Enter your pin";
+  static const oldPin = "Old pin";
+  static const newPin = "New pin";
+  static const confirmPin = "Confirm pin";
+
+  static const usePin = "Use Pin";
+  static const changePin = "Change Pin";
+
+  static const create = "Create";
+  static const change = "Change";
+
+  static const transfer = "Transfer";
+  static const transferOwnership = "Transfer Ownership";
+  static const confirmTransferOwnership = "Confirm NFT Ownership Transfer";
+
+  static String confirmTransfer(String name) => "Are you sure you want to transfer your ownership "
+      "to $name? \n\nThis action is irreversible, means if it gets success you won't be able to get your NFT ownership back, "
+      "unless receiver user transfers ownership of current NFT back to you again.";
+
+  static const error = "Error!";
+  static const yesIWant = "Yes, I want";
+  static const requestAccepted = "Request Accepted";
+  static const transferCompleted = "Transfer Completed";
 }

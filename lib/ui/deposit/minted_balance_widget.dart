@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kyc3/app/app.dart';
 import 'package:kyc3/cubits/balance/balance_cubit.dart';
 import 'package:kyc3/widgets/widgets.dart';
-import 'package:provider/provider.dart';
 
 class MintedBalanceWidget extends StatefulWidget {
   const MintedBalanceWidget({Key? key}) : super(key: key);
@@ -58,7 +57,7 @@ class _MintedBalanceWidgetState extends State<MintedBalanceWidget> {
           },
         ),
         Texts(
-          " Current Mint Balance".toUpperCase(),
+          " ${Strings.currentMintBalance}".toUpperCase(),
           textAlign: TextAlign.center,
           style: context.textTheme.bodyText2?.copyWith(fontSize: 12.0),
         ),

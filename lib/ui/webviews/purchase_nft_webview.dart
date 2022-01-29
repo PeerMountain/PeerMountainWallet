@@ -19,12 +19,6 @@ class _PurchaseNftWebViewState extends State<PurchaseNftWebView> {
   final Completer<WebViewController> _controller = Completer<WebViewController>();
 
   @override
-  void initState() {
-    super.initState();
-//    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BaseScaffold(
       isAppbar: true,
@@ -35,7 +29,7 @@ class _PurchaseNftWebViewState extends State<PurchaseNftWebView> {
         color: context.textColor,
         fontWeight: FontWeight.bold,
       ),
-      title: "PeerMountain",
+      title: Strings.peerMountain,
       child: SafeArea(
         child: Builder(
           builder: (_) {
@@ -60,9 +54,12 @@ class _PurchaseNftWebViewState extends State<PurchaseNftWebView> {
               },
               onPageStarted: (String url) async {
                 showLog('Page started loading: $url');
-                if (url.contains(Links.successURL)) {
+
+                final isSuccessUrl = url.startsWith(Links.successURL);
+
+                if (isSuccessUrl) {
                   hideKeyboard();
-                  Future.delayed(const Duration(milliseconds: 50), () {
+                  Future.delayed(const Duration(milliseconds: 100), () {
                     Navigator.of(context).pop(Keys.success);
                   });
                   return;

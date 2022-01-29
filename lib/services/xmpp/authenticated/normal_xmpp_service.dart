@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kyc3/app/app.dart';
-import 'package:kyc3/app/globals.dart';
 import 'package:kyc3/generated/com/kyc3/message.pb.dart';
+import 'package:kyc3/models/chat/chat_model.dart';
 import 'package:kyc3/models/hive_adapters/contact/kyc_contact.dart';
+import 'package:kyc3/models/kyc_base_message.dart';
+import 'package:kyc3/services/local_notification_service.dart';
 import 'package:kyc3/services/services.dart';
 import 'package:kyc3/services/xmpp/src/xmpp_core.dart';
 import 'package:kyc3/utils/app_events.dart';
 import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
-import '../src/xmpp_utils.dart';
 
 export 'normal_receive_service.dart';
 export 'normal_send_service.dart';
@@ -48,6 +50,10 @@ class NormalXmppService {
     required String password,
     required Function(xmpp.XmppConnectionState) onConnectionStateChange,
   }) async {
+    if (connection != null && connection!.state == xmpp.XmppConnectionState.Ready) {
+      return;
+    }
+
     xmpp.Log.logXmpp = false;
     xmpp.Log.logLevel = xmpp.LogLevel.DEBUG;
 
@@ -133,41 +139,69 @@ class NormalXmppService {
     connection!.close();
   }
 
-  void checkForChatMessages(xmpp.MessageStanza? message) {
-    final allConversations = hiveStorage.getAllConversations();
-
-    if (message != null && allConversations != null) {
-      KycContact? isAlreadyExist, foundContact;
-
-      try {
-        isAlreadyExist =
-            allConversations.firstWhere((element) => element.blockchainAddress == message.fromJid!.local);
-      } catch (e) {}
-
-      /// add new conversation
-      if (isAlreadyExist == null) {
-        try {
-          final allContacts = hiveStorage.getAllContacts();
-          foundContact =
-              allContacts?.firstWhere((element) => element.blockchainAddress == message.fromJid!.local);
-          if (foundContact != null) {
-            final contact = KycContact()
-              ..blockchainAddress = message.fromJid!.local
-              ..jid = message.fromJid!.local.addXmppKycHost()
-              ..nickName = foundContact.nickName
-              ..fullName = foundContact.fullName
-              ..image = foundContact.image;
-            hiveStorage.addConversations(contact);
-          }
-        } catch (e) {
-          /// temp chat
-        }
-      } else {
-        /// already exists do not add again
+  void checkForChatMessages(xmpp.MessageStanza? message) async {
+    if (message != null) {
+      final baseMessage = KycBaseMessage.fromJson(jsonDecode(message.body!));
+      switch (EnumToString.fromString(MessageType.values, baseMessage.type!)) {
+        case MessageType.chat:
+          _handleChatMessage(message, baseMessage);
+          break;
+        default:
       }
-
-      /// add message to user's chat messages list
     }
-    eventBus.fire(ChatEvent(message: message!.body!, from: message.fromJid!.local));
+  }
+
+  void _handleChatMessage(xmpp.MessageStanza message, KycBaseMessage baseMessage) async {
+    final allConversations = hiveStorage.getAllConversations();
+    final chatMessage = ChatModel.fromJson(jsonDecode(baseMessage.message!));
+    KycContact? isAlreadyExist, foundContact;
+
+    isAlreadyExist = allConversations?.firstWhereOrNull(
+      (element) => element.blockchainAddress == message.fromJid!.local,
+    );
+
+    /// add new conversation
+    if (isAlreadyExist == null) {
+      final allContacts = hiveStorage.getAllContacts();
+      foundContact = allContacts?.firstWhereOrNull(
+        (element) => element.blockchainAddress == message.fromJid!.local,
+      );
+
+      if (foundContact != null) {
+        /// add new conversation from existing contact information
+        final contact = KycContact()
+          ..blockchainAddress = message.fromJid!.local
+          ..jid = message.fromJid!.local.addXmppKycHost()
+          ..nickName = foundContact.nickName
+          ..fullName = foundContact.fullName
+          ..image = foundContact.image;
+        hiveStorage.addConversations(contact);
+      } else {
+        /// add new conversation from chat message contact information
+
+        final contact = KycContact()
+          ..blockchainAddress = message.fromJid!.local
+          ..jid = message.fromJid!.local.addXmppKycHost()
+          ..nickName = chatMessage.senderNickname
+          ..fullName = chatMessage.senderFullname
+          ..image = chatMessage.senderProfileUrl;
+        hiveStorage.addConversations(contact);
+      }
+    } else {
+      /// already exists do not add again
+    }
+
+    /// add message to user's chat messages list or show notification
+    eventBus.fire(ChatEvent(message: baseMessage.message!, from: message.fromJid!.local));
+
+    /// show local notification to user of incoming message
+    /// if he/she is not on the chat screen already
+    if (isChatScreenOpen == false) {
+      await localNotificationService.showSimpleNotification(
+        title: chatMessage.senderFullname!,
+        body: chatMessage.message!,
+        data: message.body,
+      );
+    }
   }
 }

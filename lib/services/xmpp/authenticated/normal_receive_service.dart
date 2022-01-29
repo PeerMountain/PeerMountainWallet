@@ -8,6 +8,7 @@ import 'package:kyc3/generated/com/kyc3/oracle/user/challenge-signed.pb.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/deposit.pb.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/erc20.pb.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/initiate-nft-purchase.pb.dart';
+import 'package:kyc3/generated/com/kyc3/oracle/user/nft-transfer.pb.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/search-nft.pb.dart';
 import 'package:kyc3/generated/com/kyc3/oracle/user/user-token.pb.dart';
 import 'package:kyc3/services/services.dart';
@@ -24,6 +25,8 @@ class NormalReceiveService {
   static NormalReceiveService get instance => NormalReceiveService._();
 
   StreamSubscription? _subscription;
+
+  bool _isInitial = true;
 
   /// Safely listen messages for ONE TIME ONLY
   Future<void> initResponseListeners() async {
@@ -66,6 +69,10 @@ class NormalReceiveService {
           _handleUserTokenResponse(message.unpackInto(UserTokenResponse()));
           return;
         }
+        if (message.canUnpackInto(NftTransferResponse())) {
+          _handleNftTransferResponse(message.unpackInto(NftTransferResponse()));
+          return;
+        }
         if (message.canUnpackInto(ErrorDto())) {
           final error = message.unpackInto(ErrorDto());
           showErrorSnackbar(error.message);
@@ -86,14 +93,17 @@ class NormalReceiveService {
     showLog("_handleExchangeKeysResponse is completed!");
     hideLoader();
 
+    /// to refresh user gallery list on initial app launch ONLY
+    _isInitial = true;
+
     /// This will be TRUE ONLY If user is signing up or creating new wallet
     if (anonymousReceiveService.isNewUser) {
       anonymousReceiveService.isNewUser = false;
-      navUtils.gotoMainScreen();
+      navUtils.gotoMainScreen(sendRequest: true);
     } else {
-      showLog("do not anything user is already on main screen.");
-      showSuccessSnackbar("Connected to server!!");
+      showLog("don't do anything user is already on main screen.");
       eventBus.fire(MarketCubitResponses(response: SearchNftRequest()));
+      showSuccessSnackbar("Connected to server!!");
 
       /// CHECK FOR USER MINT/ALLOWANCE/APPROVE AMOUNT
       web3Repository.performMintAllowanceApproveAmountFlow();
@@ -104,6 +114,12 @@ class NormalReceiveService {
   /// check response handler in [MarketCubit.handleSearchNftResponse]
   void _handleSearchNftResponse(SearchNftResponse response) {
     eventBus.fire(MarketCubitResponses(response: response));
+
+    /// to refresh user gallery list on initial app launch ONLY
+    if (_isInitial) {
+      _isInitial = false;
+      eventBus.fire(GalleryCubitResponses(response: response));
+    }
   }
 
   /// See *[MarketCubit] for more information and
@@ -139,6 +155,12 @@ class NormalReceiveService {
   /// See *[GalleryCubit] for more information.
   /// check response handler in [GalleryCubit.handleUserTokenResponse]
   void _handleUserTokenResponse(UserTokenResponse response) {
+    eventBus.fire(GalleryCubitResponses(response: response));
+  }
+
+  /// See *[GalleryCubit] for more information.
+  /// check response handler in [GalleryCubit.handleNftTransferResponse]
+  void _handleNftTransferResponse(NftTransferResponse response) {
     eventBus.fire(GalleryCubitResponses(response: response));
   }
 }

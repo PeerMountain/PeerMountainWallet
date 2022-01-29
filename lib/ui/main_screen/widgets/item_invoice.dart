@@ -4,7 +4,7 @@ import 'package:kyc3/models/hive_adapters/invoices/kyc_invoice.dart';
 import 'package:kyc3/ui/main_screen/marketplace/market_cubit.dart';
 import 'package:kyc3/widgets/cached_image.dart';
 import 'package:kyc3/widgets/widgets.dart';
-import 'package:provider/src/provider.dart';
+import 'package:provider/provider.dart';
 
 class ItemInvoice extends StatelessWidget {
   final KycInvoice invoice;

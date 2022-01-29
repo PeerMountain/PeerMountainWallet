@@ -18,9 +18,9 @@ class XmppUtils {
   static const host = 'xmpp.kyc3.com';
 
   /// oracle address
-  // static String oracleAddress = '0x24eb69030be50c01f3952fed03bbd36c33e25429';
-  // static String oracleAddress = '0xd084ed39243077b24a7fa6522b8795fef35e92df';
-  static String oracleAddress = '0xe85eaddac40e3eca56e7243921c73ceb27a5f1fa';
+  // static String oracleAddress = '0xe85eaddac40e3eca56e7243921c73ceb27a5f1fa';
+  /// DATE :- 06-Jan-2021
+  static String oracleAddress = '0xf2064cbc3c9f859780ae939739f8054e289d9542';
 
   static xmpp.Jid get oracleJID => xmpp.Jid.fromFullJid("${XmppUtils.oracleAddress}@${XmppUtils.host}");
 

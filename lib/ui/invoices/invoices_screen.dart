@@ -5,9 +5,8 @@ import 'package:kyc3/app/app.dart';
 import 'package:kyc3/models/hive_adapters/invoices/kyc_invoice.dart';
 import 'package:kyc3/ui/main_screen/widgets/item_invoice.dart';
 import 'package:kyc3/utils/app_utils.dart';
-import 'package:kyc3/widgets/base_scaffold.dart';
 import 'package:kyc3/widgets/widgets.dart';
-import 'package:provider/src/provider.dart';
+import 'package:provider/provider.dart';
 
 import 'invoice_cubit.dart';
 
@@ -26,16 +25,16 @@ class _AllInvoicesScreenState extends State<AllInvoicesScreen> {
       isAppbar: true,
       titleStyle: CustomStyles.appbarTitle,
       backgroundColor: context.homeBackgroundColor,
-      title: "Invoices",
+      title: Strings.invoices,
       applyShape: true,
       child: liveList == null
-          ? const NoDataFound(msg: "No invoices yet!")
+          ? const NoDataFound(msg: Strings.noInvoices)
           : ValueListenableBuilder<Box<KycInvoice>>(
               valueListenable: liveList,
               builder: (context, box, _) {
                 final _invoices = box.values.toList();
 
-                if (_invoices.isEmpty) return const NoDataFound(msg: "No invoices yet!");
+                if (_invoices.isEmpty) return const NoDataFound(msg: Strings.noInvoices);
 
                 return GroupedListView<KycInvoice, String>(
                   elements: _invoices,

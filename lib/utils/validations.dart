@@ -32,10 +32,16 @@ class Validator {
     }
   }
 
-  bool isValidName(String name) {
-    Pattern pattern = r'^[a-zA-Z][a-zA-Z\- ]*[a-zA-Z ]$';
-    RegExp regex = RegExp(pattern.toString());
-    return regex.hasMatch(name);
+  bool isValidName(String name, {bool allowNumbers = false}) {
+    if (!allowNumbers) {
+      Pattern pattern = r'^[a-zA-Z][a-zA-Z\- ]*[a-zA-Z ]$';
+      RegExp regex = RegExp(pattern.toString());
+      return regex.hasMatch(name);
+    } else {
+      Pattern pattern = r'^[a-zA-Z0-9][a-zA-Z0-9\- ]*[a-zA-Z0-9 ]$';
+      RegExp regex = RegExp(pattern.toString());
+      return regex.hasMatch(name);
+    }
   }
 
   bool isValidEmail(String email) => emailRegex.hasMatch(email);

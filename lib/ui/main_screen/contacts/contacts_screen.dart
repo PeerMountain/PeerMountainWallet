@@ -3,17 +3,22 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hive/hive.dart';
 import 'package:kyc3/app/app.dart';
-import 'package:kyc3/app/router/routes.dart';
 import 'package:kyc3/models/hive_adapters/contact/kyc_contact.dart';
+import 'package:kyc3/ui/main_screen/marketplace/nft_details/nft_details_screen.dart';
 import 'package:kyc3/ui/main_screen/widgets/item_contact.dart';
-import 'package:kyc3/widgets/base_scaffold.dart';
 import 'package:kyc3/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
 import 'contacts_cubit.dart';
 
 class ContactsScreen extends StatefulWidget {
-  const ContactsScreen({Key? key}) : super(key: key);
+  /// If TRUE means user is coming to contact screen only
+  /// to pickup contact for transferring his/her nft from [NftDetailsScreen].
+  ///
+  /// If FALSE then no effect will be applied.
+  final bool? pickContact;
+
+  const ContactsScreen({Key? key, this.pickContact}) : super(key: key);
 
   @override
   _ContactsScreenState createState() => _ContactsScreenState();
@@ -63,8 +68,16 @@ class _ContactsScreenState extends State<ContactsScreen> {
                     ),
                   ),
                   separator: const SizedBox(height: 10),
-                  itemBuilder: (_, element) {
-                    return ItemContact(contact: element);
+                  itemBuilder: (_, contact) {
+                    return ItemContact(
+                      contact: contact,
+                      showChat: widget.pickContact == false,
+                      onTap: widget.pickContact == true
+                          ? () {
+                              Navigator.of(context).pop(contact);
+                            }
+                          : null,
+                    );
                   },
                 );
               },
@@ -112,7 +125,7 @@ class __AddContactsFabState extends State<_AddContactsFab> with SingleTickerProv
     return CustomFloatButton(
       items: <Bubble>[
         Bubble(
-          title: Strings.newContacts,
+          title: Strings.newContact,
           icon: CircleAvatar(
             backgroundColor: Theme.of(context).splashColor,
             child: SvgPicture.asset(
@@ -124,7 +137,7 @@ class __AddContactsFabState extends State<_AddContactsFab> with SingleTickerProv
           titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
           onPress: () async {
             await close();
-            navigationService.navigateTo(Routes.addOrEditContacts.value);
+            navUtils.addNewContact();
           },
         ),
         Bubble(

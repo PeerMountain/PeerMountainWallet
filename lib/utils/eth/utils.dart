@@ -39,7 +39,7 @@ int getBinarySize(String str) {
 
 /// Returns TRUE if the first specified array contains all elements
 /// from the second one. FALSE otherwise.
-Future<bool> arrayContainsArray(List superset, List subset, {bool some: false}) async {
+Future<bool> arrayContainsArray(List superset, List subset, {bool some = false}) async {
   if (some) {
     return Set.from(superset).intersection(Set.from(subset)).isNotEmpty;
   } else {

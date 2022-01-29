@@ -5,8 +5,6 @@ import 'package:kyc3/app/app.dart';
 import 'package:kyc3/cubits/balance/balance_cubit.dart';
 import 'package:kyc3/ui/deposit/allowance_balance_widget.dart';
 import 'package:kyc3/ui/deposit/current_balance_widget.dart';
-import 'package:kyc3/widgets/base_scaffold.dart';
-import 'package:kyc3/widgets/text_widget.dart';
 import 'package:kyc3/widgets/widgets.dart';
 
 import 'minted_balance_widget.dart';
@@ -37,7 +35,7 @@ class _DepositAmountScreenState extends State<DepositAmountScreen> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      title: "Deposit",
+      title: Strings.deposit,
       resizeToAvoidBottomInset: false,
       child: ListView(
         children: [
@@ -119,13 +117,13 @@ class __TopDepositLayoutState extends State<_TopDepositLayout> {
       child: TextFormFieldWidget(
         controller: widget.controller,
         focusNode: widget.focusNode,
-        label: "Enter amount",
-        hintText: "Min. ${Units.pmtn} 1.0",
+        label: Strings.enterAmount,
+        hintText: Strings.minAmountHint,
         textInputType: TextInputType.number,
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r"^\d+(\.\d)?\d*$")),
         ],
-        actionKeyboard: TextInputAction.done,
+        textInputAction: TextInputAction.done,
         errorText: getErrorText(),
       ),
     );
@@ -156,7 +154,7 @@ class __TopDepositLayoutState extends State<_TopDepositLayout> {
 
   Widget _minAndMaxWidget() {
     return Texts(
-      "Min ${Units.pmtn} 1, Max ${Units.pmtn} 100000 ",
+      Strings.minAmountErrorTextField,
       textAlign: TextAlign.center,
       style: context.textTheme.bodyText2?.copyWith(fontSize: 14.0),
     );
@@ -173,7 +171,7 @@ class __TopDepositLayoutState extends State<_TopDepositLayout> {
     if (widget.focusNode.hasFocus) {
       final value = widget.controller.text.trim();
       if (value.isEmpty || value.toDouble() < 1.0 || value.toDouble() > 100000.00) {
-        return "Amount to enter should be between 1 and 100,000";
+        return Strings.minAmountError;
       } else {
         return null;
       }

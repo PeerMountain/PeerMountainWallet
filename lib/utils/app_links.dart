@@ -1,3 +1,3 @@
 class Links {
-  static const successURL = "https://oracle.kyc3.com/nft/purchase-complete";
+  static const successURL = "https://tap.kyc3.com/attestation/";
 }

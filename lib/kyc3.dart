@@ -8,9 +8,7 @@ import 'package:kyc3/services/services.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import 'app/app.dart';
-import 'app/router/routes.dart';
 import 'cubits/cubits.dart';
-import 'utils/navigation_utils.dart';
 
 class Kyc3App extends StatefulWidget {
   const Kyc3App({Key? key}) : super(key: key);
@@ -42,7 +40,7 @@ class _Kyc3AppState extends State<Kyc3App> {
     final themeCubit = context.watch<ThemeCubit>();
     final botToastBuilder = BotToastInit();
     return MaterialApp(
-      title: 'Kyc3 Peer Mountain Application',
+      title: Strings.appTitle,
 
       debugShowCheckedModeBanner: false,
 
@@ -121,23 +119,100 @@ class _PreLoaderState extends State<PreLoader> {
     /// All set now we can access privateKey from secure storage
     if (allDone) {
       Timer(const Duration(seconds: 3), () async {
-        final privateKey = await safeStorage.readPrivateKey();
-        if (privateKey.isReadSuccess) {
-          cryptoAccount = web3Service.getUserCryptoAccount(privateKey!)!;
+        bool isValid = false;
+        final privateKey = await safeStorage.readPrivateKey(
+          cancelText: Strings.usePin,
+          statusUnknown: () {
+            isValid = false;
+          },
+          errorHwUnavailable: () {
+            isValid = false;
+          },
+          onUsePin: () {
+            isValid = false;
+          },
+          errorNoBiometricEnrolled: () {
+            isValid = false;
+          },
+          errorNoHardware: () {
+            isValid = false;
+          },
+        );
 
-          anonymousSendService.sendExchangeKeyRequest();
-          navUtils.gotoMainScreen();
-          return;
+        if (privateKey.isReadSuccess) {
+          gotoMainScreen(privateKey!);
         } else {
-          showErrorDialog(
-            title: Strings.authenticationFailed,
-            description: Strings.errorMsgForConnectionAuthFailed,
-          ).then((value) {
-            exit(0);
-          });
+          if (!isValid) {
+            followPinFlow();
+            return;
+          }
+
+          /// unknown error here
+          _showErrorDialog();
         }
       });
     }
+  }
+
+  void followPinFlow() async {
+    /// create pin here
+    final userPin = await secureStorage.readPin();
+    final securePvKey = await secureStorage.readPrivateKey();
+
+    if (securePvKey == null || securePvKey == "" || userPin == null || userPin == "") {
+      final result = await showErrorDialog(
+        title: Strings.authenticationFailed,
+        description: Strings.errorMsgAuthFailed,
+        okText: Strings.usePin,
+      );
+      final response = await navUtils.gotoCreateOrChangePinScreen();
+
+      if (response == true) {
+        gotoMainScreen(securePvKey);
+      } else {
+        /// show error dialog here stating cant continue without pin
+        _showErrorDialog();
+      }
+    } else {
+      final authType = prefs.getAuthType();
+
+      /// create new pin here
+      if (authType == Keys.bio) {
+        final response = await navUtils.gotoCreateOrChangePinScreen();
+
+        if (response == true) {
+          prefs.setAuthType(Keys.pin);
+          gotoMainScreen(securePvKey);
+        } else {
+          _showErrorDialog();
+        }
+      } else {
+        /// valid user pin here and then goto main screen
+        final result = await navUtils.gotoValidatePinScreen();
+
+        if (result == true) {
+          gotoMainScreen(securePvKey);
+        } else {
+          _showErrorDialog();
+        }
+      }
+    }
+  }
+
+  void _showErrorDialog() {
+    showErrorDialog(
+      title: Strings.authenticationFailed,
+      description: Strings.errorMsgForConnectionAuthFailed,
+    ).then((value) {
+      exit(0);
+    });
+  }
+
+  void gotoMainScreen(String privateKey) {
+    cryptoAccount = web3Service.getUserCryptoAccount(privateKey)!;
+
+    anonymousSendService.sendExchangeKeyRequest();
+    navUtils.gotoMainScreen();
   }
 
   @override

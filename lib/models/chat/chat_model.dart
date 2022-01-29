@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 
-enum MessageType { text, payment, request }
+enum MessageType { text, payment, request, chat, nftTransferReceived }
 
 extension MsgEnumExt on String {
-  MessageType toMessageType() {
+  MessageType? toMessageType() {
     switch (this) {
       case 'text':
         return MessageType.text;
@@ -13,8 +13,10 @@ extension MsgEnumExt on String {
         return MessageType.payment;
       case 'request':
         return MessageType.request;
-      default:
-        return MessageType.text;
+      case 'chat':
+        return MessageType.chat;
+      case 'nftTransferReceived':
+        return MessageType.nftTransferReceived;
     }
   }
 }
@@ -80,7 +82,7 @@ class ChatModel extends Equatable {
         lat: json['lat'] as num?,
         lng: json['lng'] as num?,
         location: json['location'] as String?,
-        messageType: (json['message_type'] as String?)!.toMessageType(),
+        messageType: (json['message_type'] as String?)!.toMessageType()!,
       );
 
   Map<String, dynamic> toJson() => {

@@ -1,4 +1,5 @@
 export 'device_info_service.dart';
+export 'invoice_service.dart';
 export 'third_party_services_module.dart';
 export 'web3/web3_repository.dart';
 export 'web3/web3_service.dart';

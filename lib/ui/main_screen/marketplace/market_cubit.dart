@@ -191,6 +191,7 @@ class MarketCubit<T> extends Cubit<MarketPlaceState> {
     /// This should NOT be NULL because we have to append server url with
     if (initiateNFTPurchaseResponse != null) {
       final kResponse = initiateNFTPurchaseResponse!;
+      final invoice = initiateNFTPurchaseResponse!.invoice;
       final redirectUrl = "${response.redirectUrl}&challenge=${kResponse.challenge}"
           "&nftType=${kResponse.nftType}"
           "&signature=${initiateNftPurchaseSignature!}"
@@ -202,14 +203,14 @@ class MarketCubit<T> extends Cubit<MarketPlaceState> {
       );
 
       if (result == Keys.success) {
-        updateInvoiceStatus(kResponse.invoice.paymentNonce.toInt(), "payment_success");
+        invoiceService.updateInvoiceStatus(invoice.paymentNonce.toInt(), "payment_success");
 
         showSuccessDialog(
           title: Strings.purchasedSuccess,
           description: "NFT has been purchased successfully!",
         );
       } else {
-        updateInvoiceStatus(kResponse.invoice.paymentNonce.toInt(), "payment_failed");
+        invoiceService.updateInvoiceStatus(invoice.paymentNonce.toInt(), "payment_failed");
         showErrorSnackbar("Couldn't purchase NFT!");
       }
     }

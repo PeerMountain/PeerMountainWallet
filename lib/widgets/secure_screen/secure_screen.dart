@@ -3,12 +3,20 @@ import 'package:focus_detector/focus_detector.dart';
 import 'package:kyc3/app/app.dart';
 
 class SecureScreen extends StatelessWidget {
+  final bool isSecure;
   final Widget child;
 
-  const SecureScreen({Key? key, required this.child}) : super(key: key);
+  const SecureScreen({
+    Key? key,
+    required this.child,
+    this.isSecure = true,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    if (!isSecure) {
+      return child;
+    }
     return FocusedScreen(
       onFocusGained: () => secureScreen(),
       onFocusLost: () => unsecureScreen(),

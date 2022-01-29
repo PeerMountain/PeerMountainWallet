@@ -16,7 +16,7 @@ class FilledButton extends StatelessWidget {
 
   /// By default it will take border radius of 30
   /// which means its rounded button by default
-  final double? borderRadius;
+  final BorderRadius? borderRadius;
   final double? width;
   final double? height;
   final double? elevation;
@@ -41,7 +41,7 @@ class FilledButton extends StatelessWidget {
     required this.text,
     this.textColor = Colors.white,
     this.color = Palette.accentColor,
-    this.borderRadius = 30.0,
+    this.borderRadius,
     this.width,
     this.height = button45,
     this.elevation,
@@ -77,7 +77,7 @@ class FilledButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         gradient: applyGradient ? gradient : null,
-        borderRadius: BorderRadius.circular(borderRadius!),
+        borderRadius: borderRadius ?? BorderRadius.circular(30.0),
       ),
       margin: margin,
       child: ElevatedButton(
@@ -93,7 +93,7 @@ class FilledButton extends StatelessWidget {
           splashFactory: splashFactory,
           fixedSize: Size(width ?? screenWidth, height!),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius!),
+            borderRadius: borderRadius ?? BorderRadius.circular(30.0),
             side: BorderSide(color: Palette.accentLight3, width: borderWidth!),
           ),
         ),
@@ -115,7 +115,7 @@ class BorderButton extends StatelessWidget {
   final String text;
   final Color textColor;
   final Color color;
-  final double? borderRadius;
+  final BorderRadius? borderRadius;
   final double? width;
   final double? height;
   final double? elevation;
@@ -136,7 +136,7 @@ class BorderButton extends StatelessWidget {
     required this.text,
     this.color = Colors.white,
     this.textColor = Palette.accentColor,
-    this.borderRadius = 30.0,
+    this.borderRadius,
     this.width,
     this.height = button45,
     this.elevation = 0.0,
@@ -173,7 +173,7 @@ class BorderButton extends StatelessWidget {
         alignment: Alignment.center,
         fixedSize: Size(width ?? screenWidth, height!),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius!),
+          borderRadius: borderRadius ?? BorderRadius.circular(30.0),
           side: BorderSide(color: borderSideColor ?? color, width: borderWidth!),
         ),
       ),
@@ -201,7 +201,7 @@ class EmptyButton extends StatelessWidget {
   final double? height;
   final double? fontSize;
   final FontWeight? fontWeight;
-  final double? borderRadius;
+  final BorderRadius? borderRadius;
   final Color? borderSideColor;
   final EdgeInsetsGeometry? padding;
 
@@ -215,7 +215,7 @@ class EmptyButton extends StatelessWidget {
     this.trailing,
     this.fontFamily,
     this.fontWeight = FontWeight.w700,
-    this.borderRadius = 30.0,
+    this.borderRadius,
     this.borderSideColor,
     this.width,
     this.height = button45,
@@ -234,7 +234,7 @@ class EmptyButton extends StatelessWidget {
         alignment: Alignment.center,
         padding: padding,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius!),
+          borderRadius: borderRadius ?? BorderRadius.circular(30.0),
           side: BorderSide(color: borderSideColor ?? color),
         ),
       ),

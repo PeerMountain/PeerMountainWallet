@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:kyc3/app/app.dart';
 
 class CustomListTile extends StatelessWidget {
+  /// If this is specified and is not null then all [leading], [title], [trailing]
+  /// all of widgets will be ignored
+  final Widget? child;
   final Widget? leading;
   final Widget? title;
   final Widget? trailing;
@@ -13,6 +16,7 @@ class CustomListTile extends StatelessWidget {
 
   const CustomListTile({
     Key? key,
+    this.child,
     this.leading,
     this.title,
     this.trailing,
@@ -45,13 +49,14 @@ class CustomListTile extends StatelessWidget {
             ],
           ),
           padding: padding!,
-          child: Row(
-            children: [
-              if (leading != null) leading!,
-              Expanded(flex: flex!, child: title!),
-              if (trailing != null) trailing!,
-            ],
-          ),
+          child: child ??
+              Row(
+                children: [
+                  if (leading != null) leading!,
+                  Expanded(flex: flex!, child: title!),
+                  if (trailing != null) trailing!,
+                ],
+              ),
         ), // other widget
       ),
     );

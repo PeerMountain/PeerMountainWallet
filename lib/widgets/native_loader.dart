@@ -19,14 +19,18 @@ class NativeLoader extends StatelessWidget {
   }) : super(key: key);
 
   const NativeLoader.android({
+    Key? key,
     this.valueColor = Palette.accentColor,
     this.scale = 1.0,
-  }) : platform = LoaderPlatform.android;
+  })  : platform = LoaderPlatform.android,
+        super(key: key);
 
   const NativeLoader.ios({
+    Key? key,
     this.valueColor = Palette.accentColor,
     this.scale = 1.0,
-  }) : platform = LoaderPlatform.ios;
+  })  : platform = LoaderPlatform.ios,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {

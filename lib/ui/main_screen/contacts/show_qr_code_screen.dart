@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kyc3/app/app.dart';
 import 'package:kyc3/utils/app_utils.dart';
-import 'package:kyc3/widgets/base_scaffold.dart';
-import 'package:kyc3/widgets/text_field_widget.dart';
-import 'package:kyc3/widgets/text_widget.dart';
 import 'package:kyc3/widgets/widgets.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -43,7 +40,7 @@ class _ShowQrCodeScreenState extends State<ShowQrCodeScreen> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      title: "QR Code",
+      title: Strings.qrCode,
       applyShape: true,
       child: Padding(
         padding: p12,
@@ -135,10 +132,10 @@ class _ShowQrCodeScreenState extends State<ShowQrCodeScreen> {
       child: BorderButton(
         onTap: () {
           Utils.copyToClipboard(cryptoAccount.address!);
-          showSuccessSnackbar("Address copied!");
+          showSuccessSnackbar(Strings.addressCopied);
         },
         text: Strings.copyAddress,
-        width: screenWidth * 0.4,
+        width: screenWidth * 0.5,
         color: Palette.accentLight,
       ),
     );

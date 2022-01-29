@@ -16,6 +16,12 @@ class Keys {
 
   static const showIntros = 'showIntros';
   static const allDone = 'allDone';
+  static const userData = 'userData';
+
+  static const authType = 'authType';
+  static const both = 'both';
+  static const bio = 'bio';
+  static const pin = 'pin';
 
   /// --------- USED ONLY FOR ----------
   /// SAFE BIO METRIC STORAGE
@@ -32,6 +38,8 @@ class Keys {
 
   static const success = 'success';
   static const failed = 'failed';
+
+  static const chat = 'chat';
 }
 
 /// USED FOR RETRIEVING AND SETTING LOCAL VALUES
@@ -85,4 +93,8 @@ class Prefs {
       sharedPref.setString(Keys.systemVersion, systemVersion);
 
   String getDeviceType() => Platform.operatingSystem;
+
+  String? getAuthType() => sharedPref.getString(Keys.authType);
+
+  Future<bool> setAuthType(String authType) => sharedPref.setString(Keys.authType, authType);
 }

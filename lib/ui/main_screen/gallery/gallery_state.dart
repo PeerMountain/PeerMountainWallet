@@ -31,3 +31,12 @@ class GallerySuccess extends GalleryState {
   @override
   List<Object> get props => [tokens];
 }
+
+class GalleryChange extends GalleryState {
+  final List<Token> tokens;
+
+  const GalleryChange(this.tokens);
+
+  @override
+  List<Object> get props => [tokens];
+}
