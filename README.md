@@ -16,4 +16,4 @@ The application uses standard mnemonic wallet generation and supports the restor
 
 The PMW can hold crypto assets on the RSK and Ethereum blockchains (ERC-20, ERC-721, rETH) and can be extended to other chains serviced by the Attestation Engine by providing the correct key and crypto service.
 
-APK Demo link: [Download](https://github.com/PeerMountain/KYCApp/blob/main/apks/Kyc-Final-23-Dec-2021-v1.apk?raw=true)
+APK Demo link: [Download](https://github.com/PeerMountain/KYCApp/blob/main/apks/Peermountain-29-Jan-2022-Release.apk?raw=true)
